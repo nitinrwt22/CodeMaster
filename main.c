@@ -47,8 +47,8 @@ static void print_menu() {
     printf("│ 11. Display AVL tree (sorted view)                             │\n");
     printf("│ 12. Show AVL tree statistics                                   │\n");
     printf("│ 13. Build and display AST                                      │\n");
-//  printf("│ 14. Analyze AST (complexity & nesting depth)                   │\n");
-   // printf("│ 15. Extract function call graph                                │\n");
+    printf("│ 14. Analyze AST (complexity & nesting depth)                   │\n");
+    printf("│ 15. Extract function call graph                                │\n");
     printf("├────────────────────────────────────────────────────────────────┤\n");
     printf("│  0. Exit                                                       │\n");
     printf("└────────────────────────────────────────────────────────────────┘\n");
