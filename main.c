@@ -5,7 +5,7 @@
 #include "avltree.h"
 #include "ast.h"
 #include "parser.h"
-
+#include "graph.h"
 #include <stdio.h>
 
 #define HT_SIZE 1031
@@ -47,8 +47,9 @@ static void print_menu() {
     printf("│ 11. Display AVL tree (sorted view)                             │\n");
     printf("│ 12. Show AVL tree statistics                                   │\n");
     printf("│ 13. Build and display AST                                      │\n");
-    printf("│ 14. Analyze AST (complexity & nesting depth)                   │\n");
-    printf("│ 15. Extract function call graph                                │\n");
+    printf("│ 14. Analyze Function Call Graph                                │\n");
+    printf("│ 15. Analyze AST (complexity & nesting depth)                   │\n");
+    printf("│ 16. Extract function call graph                                │\n");
     printf("├────────────────────────────────────────────────────────────────┤\n");
     printf("│  0. Exit                                                       │\n");
     printf("└────────────────────────────────────────────────────────────────┘\n");
@@ -90,7 +91,14 @@ int main(int argc, char** argv) {
     }
     
     AVLNode* avl = NULL;    
-    
+        FunctionGraph* graph = graph_create(MAX_FUNCTIONS);
+    if (!graph) {
+        fprintf(stderr, "Error: Failed to create function graph\n");
+        ht_destroy(ht);
+        trie_destroy(trie);
+        return 1;
+    }
+
     clear_screen();
     print_header();
     printf("┌────────────────────────────────────────────────────────────────┐\n");
@@ -100,7 +108,7 @@ int main(int argc, char** argv) {
     printf("[*] Extracting symbols...\n");
     printf("[*] Building symbol table, trie, and AVL tree...\n\n");
     
-    parse_file_and_populate(filename, ht, trie, &avl);
+        parse_file_and_populate(filename, ht, trie, &avl, graph);
     
     int symbol_count = ht_get_count(ht);
     printf("✓ Parsing complete!\n");
@@ -338,8 +346,29 @@ int main(int argc, char** argv) {
                 wait_for_enter();
                 break;
             }
-            
             case 14: {
+    clear_screen();
+    print_header();
+    printf("Building and analyzing function call graph...\n");
+
+    if (graph_is_empty(graph)) {
+        printf("\n⚠ No functions detected to analyze.\n");
+    } else {
+        graph_print_stats(graph);
+        graph_print_adjacency_list(graph);
+        graph_print_hierarchy(graph, "main");
+        graph_detect_cycles(graph);
+        graph_generate_report(graph);
+        graph_export_dot(graph, "function_graph.dot");
+        graph_export_csv(graph, "function_calls.csv");
+    }
+
+    wait_for_enter();
+    break;
+}
+
+            
+            case 15: {
                 printf("Analyzing AST for metrics...\n");
                 ASTNode* ast = parse_file_to_ast(filename);
                 
@@ -353,7 +382,7 @@ int main(int argc, char** argv) {
                 break;
             }
             
-            case 15: { 
+            case 16: { 
                 printf("Extracting function call graph...\n");
                 ASTNode* ast = parse_file_to_ast(filename);
                 
@@ -403,6 +432,8 @@ int main(int argc, char** argv) {
     ht_destroy(ht);
     trie_destroy(trie);
     avl_destroy(avl);
+    graph_destroy(graph);
+
     
     printf("✓ Cleanup complete. Goodbye!\n\n");
     return 0;

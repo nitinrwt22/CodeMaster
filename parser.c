@@ -1,10 +1,14 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <string.h>
 #include "parser.h"
 #include "avltree.h"
 #include "ast.h"
+#include "graph.h"
 #include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+
+
 
 static const char* basic_types[] = {
     "int","float","double","char","long","short","void","unsigned","signed","size_t",
@@ -119,8 +123,8 @@ static void extract_variable_from_line(const char* line, char* out_name, char* o
     if (L && copy[L-1] == ';') copy[L-1] = '\0';
     trim(copy);
     if (strchr(copy, '(')) return;
-    char* saveptr;
-    char* token = strtok_r(copy, " \t*&", &saveptr);
+    //char* saveptr;
+    char* token = strtok(copy, " \t*&");
     if (!token) return;
     char type_buf[MAX_TYPE] = "";
     int found_type = 0;
@@ -129,7 +133,7 @@ static void extract_variable_from_line(const char* line, char* out_name, char* o
             if (strlen(type_buf) > 0) strcat(type_buf, " ");
             strncat(type_buf, token, MAX_TYPE - strlen(type_buf) - 1);
             found_type = 1;
-            token = strtok_r(NULL, " \t*&", &saveptr);
+           token = strtok(NULL, " \t*&");
         } else if (found_type) break;
         else return;
     }
@@ -215,7 +219,8 @@ static int detect_condition(const char* line, char* cond_type) {
     return 0;
 }
 
-void parse_file_and_populate(const char* filename, HashTable* ht, TrieNode* trie, AVLNode** avl) {
+void parse_file_and_populate(const char* filename, HashTable* ht, TrieNode* trie, AVLNode** avl, FunctionGraph* graph)
+ {
     FILE* f = fopen(filename, "r");
     if (!f) {
         fprintf(stderr, "Error: cannot open %s\n", filename);
@@ -261,8 +266,33 @@ void parse_file_and_populate(const char* filename, HashTable* ht, TrieNode* trie
                 ht_insert(ht, &s);
                 trie_insert_with_metadata(trie, s.name, s.type, s.category, s.line);
                 *avl = avl_insert(*avl, s.name, s.type, s.category, s.line);
+                        // Add function to graph as a node
+        if (graph) {
+            graph_add_function(graph, name, type, lineno);
+        }
+
             }
             continue;
+                    // Detect function calls (basic pattern matching)
+        if (graph && graph->node_count > 0) {
+            // Assume the current function is the last one added
+            const char* current_func = graph->nodes[graph->node_count - 1].function_name;
+
+            // Check for function call patterns
+            for (int i = 0; i < graph->node_count; i++) {
+                const char* callee = graph->nodes[i].function_name;
+                if (strcmp(current_func, callee) == 0)
+                    continue; // skip self check here, recursion will be marked later
+
+                char pattern[128];
+                snprintf(pattern, sizeof(pattern), "%s(", callee);
+
+                if (strstr(tmp, pattern) && !is_in_string_context(tmp, strstr(tmp, pattern) - tmp)) {
+                    graph_add_call(graph, current_func, callee);
+                }
+            }
+        }
+
         }
         char loop_type[32];
         if (detect_loop(tmp, loop_type)) {

@@ -1,0 +1,12 @@
+digraph FunctionCallGraph {
+  rankdir=TB;
+  node [shape=box, style=rounded];
+
+  "main" [label="main()\nLine 8", color=blue, style="rounded,filled", fillcolor=lightblue];
+  "sayHello" [label="sayHello()\nLine 16", color=red, style="rounded,filled", fillcolor=lightpink];
+  "sayBye" [label="sayBye()\nLine 20", color=red, style="rounded,filled", fillcolor=lightpink];
+  "greetAll" [label="greetAll()\nLine 24", color=red, style="rounded,filled", fillcolor=lightpink];
+  "compute" [label="compute()\nLine 29", color=red, style="rounded,filled", fillcolor=lightpink];
+  "add" [label="add()\nLine 35", color=red, style="rounded,filled", fillcolor=lightpink];
+
+}

@@ -7,9 +7,10 @@
 #include "trie.h"
 #include "avltree.h"
 #include "ast.h"
+#include "graph.h"
 
 // Parse file and populate all data structures
-void parse_file_and_populate(const char* filename, HashTable* ht, TrieNode* trie, AVLNode** avl);
+void parse_file_and_populate(const char* filename, HashTable* ht, TrieNode* trie, AVLNode** avl, FunctionGraph* graph);
 
 // Parse file and build AST (Phase 2)
 ASTNode* parse_file_to_ast(const char* filename);
