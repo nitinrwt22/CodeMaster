@@ -11,6 +11,7 @@
 typedef struct AdjListNode {
     int dest_index;                 
     int call_count;                 
+    int call_line;                  
     struct AdjListNode* next;      
 } AdjListNode;
 typedef struct GraphNode {
@@ -48,7 +49,7 @@ void graph_destroy(FunctionGraph* graph);
 int graph_add_function(FunctionGraph* graph, const char* name, 
                        const char* return_type, int line);
 
-int graph_add_call(FunctionGraph* graph, const char* caller, const char* callee);
+int graph_add_call(FunctionGraph* graph, const char* caller, const char* callee, int line);
 int graph_find_function(FunctionGraph* graph, const char* name);
 GraphNode* graph_get_node(FunctionGraph* graph, int index);
 void graph_dfs(FunctionGraph* graph, int start_index, void (*visit)(GraphNode*));

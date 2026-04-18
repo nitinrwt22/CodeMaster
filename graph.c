@@ -8,7 +8,7 @@
 /**
  * Creates a new adjacency list node
  */
-static AdjListNode* create_adj_node(int dest_index) {
+static AdjListNode* create_adj_node(int dest_index, int line) {
     AdjListNode* node = (AdjListNode*)malloc(sizeof(AdjListNode));
     if (!node) {
         fprintf(stderr, "Error: Failed to allocate adjacency node\n");
@@ -16,6 +16,7 @@ static AdjListNode* create_adj_node(int dest_index) {
     }
     node->dest_index = dest_index;
     node->call_count = 1;
+    node->call_line = line;
     node->next = NULL;
     return node;
 }
@@ -23,7 +24,7 @@ static AdjListNode* create_adj_node(int dest_index) {
 /**
  * Adds an edge to adjacency list (or increments call count if exists)
  */
-static int add_to_adj_list(GraphNode* node, int dest_index) {
+static int add_to_adj_list(GraphNode* node, int dest_index, int line) {
     /* Check if edge already exists */
     AdjListNode* curr = node->adj_list;
     while (curr) {
@@ -35,7 +36,7 @@ static int add_to_adj_list(GraphNode* node, int dest_index) {
     }
     
     /* Create new edge */
-    AdjListNode* new_node = create_adj_node(dest_index);
+    AdjListNode* new_node = create_adj_node(dest_index, line);
     if (!new_node) return 0;
     
     new_node->next = node->adj_list;
@@ -152,7 +153,7 @@ int graph_add_function(FunctionGraph* graph, const char* name,
     return graph->node_count++;
 }
 
-int graph_add_call(FunctionGraph* graph, const char* caller, const char* callee) {
+int graph_add_call(FunctionGraph* graph, const char* caller, const char* callee, int line) {
     if (!graph || !caller || !callee) return 0;
     
     int caller_idx = graph_find_function(graph, caller);
@@ -168,7 +169,7 @@ int graph_add_call(FunctionGraph* graph, const char* caller, const char* callee)
     }
     
     /* Add edge */
-    if (add_to_adj_list(&graph->nodes[caller_idx], callee_idx)) {
+    if (add_to_adj_list(&graph->nodes[caller_idx], callee_idx, line)) {
         graph->nodes[callee_idx].in_degree++;
         graph->edge_count++;
         return 1;
@@ -710,7 +711,7 @@ void graph_export_csv(FunctionGraph* graph, const char* filename) {
         return;
     }
     
-    fprintf(f, "Caller,Callee,CallCount,CallerLine,CalleeLine\n");
+    fprintf(f, "Caller,Callee,CallCount,CallerLine,CallLine\n");
     
     for (int i = 0; i < graph->node_count; i++) {
         GraphNode* caller = &graph->nodes[i];
@@ -723,7 +724,7 @@ void graph_export_csv(FunctionGraph* graph, const char* filename) {
                     callee->function_name,
                     adj->call_count,
                     caller->line_number,
-                    callee->line_number);
+                    adj->call_line);
             adj = adj->next;
         }
     }

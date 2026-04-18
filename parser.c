@@ -312,6 +312,8 @@ void parse_file_and_populate(const char* filename, HashTable* ht, TrieNode* trie
                 }
             }
 
+
+
             if (is_type_token(tokens[i].value)) {
                 if (i > 0 && is_type_token(tokens[i-1].value)) continue;
 
@@ -323,7 +325,7 @@ void parse_file_and_populate(const char* filename, HashTable* ht, TrieNode* trie
                     t++;
                 }
                 
-                int is_func = 0;
+
                 while (t < token_count) {
                     char full_type[MAX_TYPE];
                     strcpy(full_type, base_type);
@@ -347,7 +349,6 @@ void parse_file_and_populate(const char* filename, HashTable* ht, TrieNode* trie
                     }
                     
                     if (t < token_count && strcmp(tokens[t].value, "(") == 0) {
-                        is_func = 1;
                         break;
                     }
                     
@@ -383,6 +384,82 @@ void parse_file_and_populate(const char* filename, HashTable* ht, TrieNode* trie
                         break;
                     } else {
                         break;
+                    }
+                }
+            }
+        } // THIS CLOSES PHASE 1A
+        
+        // Phase 1B: Re-parse to isolate Call Trees successfully mapped against the constructed definitions recursively
+        brace_depth = 0;
+        strcpy(current_scope, "global");
+
+        for (int i = 0; i < token_count; i++) {
+            if (tokens[i].type == TOKEN_PUNCTUATION) {
+                if (strcmp(tokens[i].value, "{") == 0) brace_depth++;
+                else if (strcmp(tokens[i].value, "}") == 0) {
+                    brace_depth--;
+                    if (brace_depth <= 0) {
+                        brace_depth = 0;
+                        strcpy(current_scope, "global");
+                    }
+                }
+            }
+
+            if (tokens[i].type == TOKEN_PUNCTUATION && strcmp(tokens[i].value, "(") == 0 && i >= 1) {
+                if (tokens[i-1].type == TOKEN_IDENTIFIER) {
+                    int type_end = i - 2;
+                    int has_type = 0;
+                    char type_buf[MAX_TYPE] = "";
+                    int type_start = type_end;
+                    while (type_start >= 0) {
+                        if (tokens[type_start].type == TOKEN_KEYWORD || 
+                            tokens[type_start].type == TOKEN_IDENTIFIER || 
+                            (tokens[type_start].type == TOKEN_OPERATOR && strcmp(tokens[type_start].value, "*") == 0)) {
+                            has_type = 1;
+                            type_start--;
+                        } else {
+                            break;
+                        }
+                    }
+                    type_start++;
+                    if (has_type && type_start <= type_end) {
+                        int j = i + 1;
+                        int paren_depth = 1;
+                        while (j < token_count && paren_depth > 0) {
+                            if (strcmp(tokens[j].value, "(") == 0) paren_depth++;
+                            else if (strcmp(tokens[j].value, ")") == 0) paren_depth--;
+                            j++;
+                        }
+                        if (j < token_count && tokens[j].type == TOKEN_PUNCTUATION && strcmp(tokens[j].value, "{") == 0) {
+                            char name[MAX_NAME];
+                            strncpy(name, tokens[i-1].value, MAX_NAME-1);
+                            name[MAX_NAME-1] = '\0';
+                            if (brace_depth == 0) {
+                                strncpy(current_scope, name, MAX_NAME-1);
+                                current_scope[MAX_NAME-1] = '\0';
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (tokens[i].type == TOKEN_IDENTIFIER && i + 1 < token_count && strcmp(tokens[i+1].value, "(") == 0) {
+                if (strcmp(tokens[i].value, "sizeof") == 0 || strcmp(tokens[i].value, "if") == 0 ||
+                    strcmp(tokens[i].value, "for") == 0 || strcmp(tokens[i].value, "while") == 0 ||
+                    strcmp(tokens[i].value, "switch") == 0) {
+                    // Ignore flow definitions parsing safely natively.
+                } else {
+                    int is_decl = 0;
+                    int j = i - 1;
+                    while (j >= 0 && strcmp(tokens[j].value, "*") == 0) j--;
+                    if (j >= 0 && is_type_token(tokens[j].value)) {
+                        is_decl = 1; 
+                    }
+                    
+                    if (!is_decl) {
+                        if (graph) {
+                            graph_add_call(graph, current_scope, tokens[i].value, tokens[i].line);
+                        }
                     }
                 }
             }
@@ -422,20 +499,7 @@ void parse_file_and_populate(const char* filename, HashTable* ht, TrieNode* trie
         tmp[sizeof(tmp)-1] = '\0';
         trim(tmp);
         if (strlen(tmp) == 0) continue;
-        // --- Dead/Original String Matcher Skipped for Functions ---
-        // graph_add_call is placed out of the block so it works for the whole file
-        if (graph && graph->node_count > 0) {
-            const char* current_func = graph->nodes[graph->node_count - 1].function_name; // Approximate active scope
-            for (int i = 0; i < graph->node_count; i++) {
-                const char* callee = graph->nodes[i].function_name;
-                if (strcmp(current_func, callee) == 0) continue; 
-                char pattern[128];
-                snprintf(pattern, sizeof(pattern), "%s(", callee);
-                if (strstr(tmp, pattern) && !is_in_string_context(tmp, strstr(tmp, pattern) - tmp)) {
-                    graph_add_call(graph, current_func, callee);
-                }
-            }
-        }
+        // Obsolete Phase 2 string-based call iteration mapping explicitly purged from loop sequence.
         char loop_type[32];
         if (detect_loop(tmp, loop_type)) {
             SymbolInfo s;

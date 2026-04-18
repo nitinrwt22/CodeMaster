@@ -1,1 +1,8 @@
-Caller,Callee,CallCount,CallerLine,CalleeLine
+Caller,Callee,CallCount,CallerLine,CallLine
+main,sayBye,1,8,12
+main,compute,1,8,11
+main,greetAll,1,8,10
+main,sayHello,1,8,9
+greetAll,sayBye,1,24,26
+greetAll,sayHello,1,24,25
+compute,add,1,29,31
