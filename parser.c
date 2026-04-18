@@ -226,7 +226,21 @@ void parse_file_and_populate(const char* filename, HashTable* ht, TrieNode* trie
     int token_count = 0;
     Token* tokens = tokenize_file(filename, &token_count);
     if (tokens) {
+        int brace_depth = 0;
+        char current_scope[MAX_NAME] = "global";
+
         for (int i = 0; i < token_count; i++) {
+            if (tokens[i].type == TOKEN_PUNCTUATION) {
+                if (strcmp(tokens[i].value, "{") == 0) brace_depth++;
+                else if (strcmp(tokens[i].value, "}") == 0) {
+                    brace_depth--;
+                    if (brace_depth <= 0) {
+                        brace_depth = 0;
+                        strcpy(current_scope, "global");
+                    }
+                }
+            }
+
             if (tokens[i].type == TOKEN_PUNCTUATION && strcmp(tokens[i].value, "(") == 0 && i >= 1) {
                 if (tokens[i-1].type == TOKEN_IDENTIFIER) {
                     int type_end = i - 2;
@@ -249,46 +263,126 @@ void parse_file_and_populate(const char* filename, HashTable* ht, TrieNode* trie
                     if (has_type && type_start <= type_end) {
                         if (strcmp(tokens[i-1].value, "if") == 0 || strcmp(tokens[i-1].value, "for") == 0 ||
                             strcmp(tokens[i-1].value, "while") == 0 || strcmp(tokens[i-1].value, "switch") == 0) {
-                            continue;
-                        }
+                            // not a function
+                        } else {
+                            for (int t = type_start; t <= type_end; t++) {
+                                if (t > type_start && strcmp(tokens[t].value, "*") != 0 && strcmp(tokens[t-1].value, "*") != 0) {
+                                    strcat(type_buf, " ");
+                                }
+                                strncat(type_buf, tokens[t].value, MAX_TYPE - strlen(type_buf) - 1);
+                            }
+                            
+                            int j = i + 1;
+                            int paren_depth = 1;
+                            while (j < token_count && paren_depth > 0) {
+                                if (strcmp(tokens[j].value, "(") == 0) paren_depth++;
+                                else if (strcmp(tokens[j].value, ")") == 0) paren_depth--;
+                                j++;
+                            }
+                            
+                            if (j < token_count && tokens[j].type == TOKEN_PUNCTUATION && strcmp(tokens[j].value, "{") == 0) {
+                                char name[MAX_NAME];
+                                strncpy(name, tokens[i-1].value, MAX_NAME-1);
+                                name[MAX_NAME-1] = '\0';
+                                
+                                int lineno = tokens[i-1].line;
+                                
+                                SymbolInfo s;
+                                memset(&s, 0, sizeof(s));
+                                strncpy(s.name, name, MAX_NAME-1);
+                                strncpy(s.type, type_buf, MAX_TYPE-1);
+                                strncpy(s.category, "function", MAX_CATEGORY-1);
+                                s.line = lineno;
+                                
+                                ht_insert(ht, &s);
+                                trie_insert_with_metadata(trie, s.name, s.type, "global", s.line);
+                                *avl = avl_insert(*avl, s.name, s.type, "global", s.line);
+                                
+                                if (graph) {
+                                    graph_add_function(graph, name, type_buf, lineno);
+                                }
 
-                        for (int t = type_start; t <= type_end; t++) {
-                            if (t > type_start && strcmp(tokens[t].value, "*") != 0 && strcmp(tokens[t-1].value, "*") != 0) {
-                                strcat(type_buf, " ");
-                            }
-                            strncat(type_buf, tokens[t].value, MAX_TYPE - strlen(type_buf) - 1);
-                        }
-                        
-                        int j = i + 1;
-                        int paren_depth = 1;
-                        while (j < token_count && paren_depth > 0) {
-                            if (strcmp(tokens[j].value, "(") == 0) paren_depth++;
-                            else if (strcmp(tokens[j].value, ")") == 0) paren_depth--;
-                            j++;
-                        }
-                        
-                        if (j < token_count && tokens[j].type == TOKEN_PUNCTUATION && strcmp(tokens[j].value, "{") == 0) {
-                            char name[MAX_NAME];
-                            strncpy(name, tokens[i-1].value, MAX_NAME-1);
-                            name[MAX_NAME-1] = '\0';
-                            
-                            int lineno = tokens[i-1].line;
-                            
-                            SymbolInfo s;
-                            memset(&s, 0, sizeof(s));
-                            strncpy(s.name, name, MAX_NAME-1);
-                            strncpy(s.type, type_buf, MAX_TYPE-1);
-                            strncpy(s.category, "function", MAX_CATEGORY-1);
-                            s.line = lineno;
-                            
-                            ht_insert(ht, &s);
-                            trie_insert_with_metadata(trie, s.name, s.type, s.category, s.line);
-                            *avl = avl_insert(*avl, s.name, s.type, s.category, s.line);
-                            
-                            if (graph) {
-                                graph_add_function(graph, name, type_buf, lineno);
+                                if (brace_depth == 0) {
+                                    strncpy(current_scope, name, MAX_NAME-1);
+                                    current_scope[MAX_NAME-1] = '\0';
+                                }
                             }
                         }
+                    }
+                }
+            }
+
+            if (is_type_token(tokens[i].value)) {
+                if (i > 0 && is_type_token(tokens[i-1].value)) continue;
+
+                int t = i;
+                char base_type[MAX_TYPE] = "";
+                while (t < token_count && is_type_token(tokens[t].value)) {
+                    if (strlen(base_type) > 0) strcat(base_type, " ");
+                    strcat(base_type, tokens[t].value);
+                    t++;
+                }
+                
+                int is_func = 0;
+                while (t < token_count) {
+                    char full_type[MAX_TYPE];
+                    strcpy(full_type, base_type);
+                    
+                    while (t < token_count && strcmp(tokens[t].value, "*") == 0) {
+                        strcat(full_type, "*"); 
+                        t++;
+                    }
+                    
+                    if (t >= token_count || tokens[t].type != TOKEN_IDENTIFIER) break;
+                    
+                    char var_name[MAX_NAME];
+                    strcpy(var_name, tokens[t].value);
+                    int var_line = tokens[t].line;
+                    t++;
+                    
+                    if (t < token_count && strcmp(tokens[t].value, "[") == 0) {
+                        strcat(full_type, "[]");
+                        while (t < token_count && strcmp(tokens[t].value, "]") != 0) t++;
+                        if (t < token_count) t++;
+                    }
+                    
+                    if (t < token_count && strcmp(tokens[t].value, "(") == 0) {
+                        is_func = 1;
+                        break;
+                    }
+                    
+                    SymbolInfo s;
+                    memset(&s, 0, sizeof(s));
+                    strncpy(s.name, var_name, MAX_NAME-1);
+                    strncpy(s.type, full_type, MAX_TYPE-1);
+                    strncpy(s.category, "variable", MAX_CATEGORY-1);
+                    s.line = var_line;
+                    
+                    ht_insert(ht, &s);
+                    trie_insert_with_metadata(trie, s.name, s.type, current_scope, s.line);
+                    *avl = avl_insert(*avl, s.name, s.type, current_scope, s.line);
+                    
+                    if (t < token_count && strcmp(tokens[t].value, "=") == 0) {
+                        int paren_depth = 0;
+                        while (t < token_count) {
+                            if (strcmp(tokens[t].value, "(") == 0) paren_depth++;
+                            else if (strcmp(tokens[t].value, ")") == 0) paren_depth--;
+                            
+                            if (paren_depth == 0 && (strcmp(tokens[t].value, ",") == 0 || strcmp(tokens[t].value, ";") == 0)) {
+                                break;
+                            }
+                            t++;
+                        }
+                    }
+                    
+                    if (t < token_count && strcmp(tokens[t].value, ",") == 0) {
+                        t++;
+                        continue;
+                    } else if (t < token_count && strcmp(tokens[t].value, ";") == 0) {
+                        i = t; 
+                        break;
+                    } else {
+                        break;
                     }
                 }
             }
@@ -368,19 +462,7 @@ void parse_file_and_populate(const char* filename, HashTable* ht, TrieNode* trie
             *avl = avl_insert(*avl, s.name, s.type, s.category, s.line);
             continue;
         }
-        char varname[MAX_NAME], vartype[MAX_TYPE];
-        extract_variable_from_line(tmp, varname, vartype);
-        if (strlen(varname) > 0) {
-            SymbolInfo s;
-            memset(&s, 0, sizeof(s));
-            strncpy(s.name, varname, MAX_NAME-1);
-            strncpy(s.type, vartype, MAX_TYPE-1);
-            strncpy(s.category, "variable", MAX_CATEGORY-1);
-            s.line = lineno;
-            ht_insert(ht, &s);
-            trie_insert_with_metadata(trie, s.name, s.type, s.category, s.line);
-            *avl = avl_insert(*avl, s.name, s.type, s.category, s.line);
-        }
+        // Variable extraction string-matcher routine successfully migrated to tokens and deleted.
     }
     fclose(f);
 }
