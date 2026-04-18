@@ -220,6 +220,20 @@ static int detect_condition(const char* line, char* cond_type) {
     return 0;
 }
 
+static int detect_return(const char* line) {
+    char temp[1024];
+    strncpy(temp, line, 1023);
+    temp[1023] = '\0';
+    trim(temp);
+    if (strstr(temp, "return")) {
+        const char* pos = strstr(temp, "return");
+        if ((pos == temp || !isalnum((unsigned char)pos[-1])) && !isalnum((unsigned char)pos[6])) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 void parse_file_and_populate(const char* filename, HashTable* ht, TrieNode* trie, AVLNode** avl, FunctionGraph* graph)
 {
     // --- Phase 1: Token-based Function Detection ---
@@ -588,6 +602,12 @@ ASTNode* parse_file_to_ast(const char* filename) {
             ASTNode* cond_node = createNodeWithLine(NODE_IF, cond_type, lineno);
             appendStatement(&current_stmt, cond_node);
             addChild(root, cond_node);
+            continue;
+        }
+        if (detect_return(tmp)) {
+            ASTNode* ret_node = createNodeWithLine(NODE_RETURN, "return", lineno);
+            appendStatement(&current_stmt, ret_node);
+            addChild(root, ret_node);
             continue;
         }
         char varname[MAX_NAME], vartype[MAX_TYPE];
