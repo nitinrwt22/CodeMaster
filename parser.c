@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include "lexer.h"
 
 
 
@@ -220,7 +221,82 @@ static int detect_condition(const char* line, char* cond_type) {
 }
 
 void parse_file_and_populate(const char* filename, HashTable* ht, TrieNode* trie, AVLNode** avl, FunctionGraph* graph)
- {
+{
+    // --- Phase 1: Token-based Function Detection ---
+    int token_count = 0;
+    Token* tokens = tokenize_file(filename, &token_count);
+    if (tokens) {
+        for (int i = 0; i < token_count; i++) {
+            if (tokens[i].type == TOKEN_PUNCTUATION && strcmp(tokens[i].value, "(") == 0 && i >= 1) {
+                if (tokens[i-1].type == TOKEN_IDENTIFIER) {
+                    int type_end = i - 2;
+                    int has_type = 0;
+                    char type_buf[MAX_TYPE] = "";
+                    
+                    int type_start = type_end;
+                    while (type_start >= 0) {
+                        if (tokens[type_start].type == TOKEN_KEYWORD || 
+                            tokens[type_start].type == TOKEN_IDENTIFIER || 
+                            (tokens[type_start].type == TOKEN_OPERATOR && strcmp(tokens[type_start].value, "*") == 0)) {
+                            has_type = 1;
+                            type_start--;
+                        } else {
+                            break;
+                        }
+                    }
+                    type_start++;
+                    
+                    if (has_type && type_start <= type_end) {
+                        if (strcmp(tokens[i-1].value, "if") == 0 || strcmp(tokens[i-1].value, "for") == 0 ||
+                            strcmp(tokens[i-1].value, "while") == 0 || strcmp(tokens[i-1].value, "switch") == 0) {
+                            continue;
+                        }
+
+                        for (int t = type_start; t <= type_end; t++) {
+                            if (t > type_start && strcmp(tokens[t].value, "*") != 0 && strcmp(tokens[t-1].value, "*") != 0) {
+                                strcat(type_buf, " ");
+                            }
+                            strncat(type_buf, tokens[t].value, MAX_TYPE - strlen(type_buf) - 1);
+                        }
+                        
+                        int j = i + 1;
+                        int paren_depth = 1;
+                        while (j < token_count && paren_depth > 0) {
+                            if (strcmp(tokens[j].value, "(") == 0) paren_depth++;
+                            else if (strcmp(tokens[j].value, ")") == 0) paren_depth--;
+                            j++;
+                        }
+                        
+                        if (j < token_count && tokens[j].type == TOKEN_PUNCTUATION && strcmp(tokens[j].value, "{") == 0) {
+                            char name[MAX_NAME];
+                            strncpy(name, tokens[i-1].value, MAX_NAME-1);
+                            name[MAX_NAME-1] = '\0';
+                            
+                            int lineno = tokens[i-1].line;
+                            
+                            SymbolInfo s;
+                            memset(&s, 0, sizeof(s));
+                            strncpy(s.name, name, MAX_NAME-1);
+                            strncpy(s.type, type_buf, MAX_TYPE-1);
+                            strncpy(s.category, "function", MAX_CATEGORY-1);
+                            s.line = lineno;
+                            
+                            ht_insert(ht, &s);
+                            trie_insert_with_metadata(trie, s.name, s.type, s.category, s.line);
+                            *avl = avl_insert(*avl, s.name, s.type, s.category, s.line);
+                            
+                            if (graph) {
+                                graph_add_function(graph, name, type_buf, lineno);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        free(tokens);
+    }
+
+    // --- Phase 2: Line-based Parsing for Other Symbols ---
     FILE* f = fopen(filename, "r");
     if (!f) {
         fprintf(stderr, "Error: cannot open %s\n", filename);
@@ -252,47 +328,19 @@ void parse_file_and_populate(const char* filename, HashTable* ht, TrieNode* trie
         tmp[sizeof(tmp)-1] = '\0';
         trim(tmp);
         if (strlen(tmp) == 0) continue;
-        if (looks_like_function_header(tmp)) {
-            char name[MAX_NAME], type[MAX_TYPE];
-            extract_name_from_function(tmp, name, type);
-            if (strlen(name) > 0 && strcmp(name, "if") != 0 && strcmp(name, "for") != 0 &&
-                strcmp(name, "while") != 0 && strcmp(name, "switch") != 0) {
-                SymbolInfo s;
-                memset(&s, 0, sizeof(s));
-                strncpy(s.name, name, MAX_NAME-1);
-                strncpy(s.type, type, MAX_TYPE-1);
-                strncpy(s.category, "function", MAX_CATEGORY-1);
-                s.line = lineno;
-                ht_insert(ht, &s);
-                trie_insert_with_metadata(trie, s.name, s.type, s.category, s.line);
-                *avl = avl_insert(*avl, s.name, s.type, s.category, s.line);
-                        // Add function to graph as a node
-        if (graph) {
-            graph_add_function(graph, name, type, lineno);
-        }
-
-            }
-            continue;
-                    // Detect function calls (basic pattern matching)
+        // --- Dead/Original String Matcher Skipped for Functions ---
+        // graph_add_call is placed out of the block so it works for the whole file
         if (graph && graph->node_count > 0) {
-            // Assume the current function is the last one added
-            const char* current_func = graph->nodes[graph->node_count - 1].function_name;
-
-            // Check for function call patterns
+            const char* current_func = graph->nodes[graph->node_count - 1].function_name; // Approximate active scope
             for (int i = 0; i < graph->node_count; i++) {
                 const char* callee = graph->nodes[i].function_name;
-                if (strcmp(current_func, callee) == 0)
-                    continue; // skip self check here, recursion will be marked later
-
+                if (strcmp(current_func, callee) == 0) continue; 
                 char pattern[128];
                 snprintf(pattern, sizeof(pattern), "%s(", callee);
-
                 if (strstr(tmp, pattern) && !is_in_string_context(tmp, strstr(tmp, pattern) - tmp)) {
                     graph_add_call(graph, current_func, callee);
                 }
             }
-        }
-
         }
         char loop_type[32];
         if (detect_loop(tmp, loop_type)) {
