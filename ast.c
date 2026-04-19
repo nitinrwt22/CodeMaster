@@ -35,8 +35,12 @@ ASTNode* createNodeWithLine(NodeType type, const char* value, int lineNumber) {
         node->parameters[i] = NULL;
     }
     
-    for (int i = 0; i < MAX_CHILDREN; i++) {
-        node->children[i] = NULL;
+    node->childCapacity = 4;
+    node->children = (struct ASTNode**)malloc(node->childCapacity * sizeof(struct ASTNode*));
+    if (node->children) {
+        for (int i = 0; i < node->childCapacity; i++) {
+            node->children[i] = NULL;
+        }
     }
     
     return node;
@@ -55,7 +59,18 @@ ASTNode* connectNodes(ASTNode* parent, ASTNode* left, ASTNode* right) {
 
 
 void addChild(ASTNode* parent, ASTNode* child) {
-    if (!parent || !child || parent->childCount >= MAX_CHILDREN) return;
+    if (!parent || !child) return;
+    
+    if (parent->childCount >= parent->childCapacity) {
+        int newCap = parent->childCapacity == 0 ? 4 : parent->childCapacity * 2;
+        ASTNode** newArray = (ASTNode**)realloc(parent->children, newCap * sizeof(ASTNode*));
+        if (!newArray) return;
+        parent->children = newArray;
+        for (int i = parent->childCapacity; i < newCap; i++) {
+            parent->children[i] = NULL;
+        }
+        parent->childCapacity = newCap;
+    }
     
     parent->children[parent->childCount++] = child;
     child->parent = parent;
@@ -71,6 +86,10 @@ void appendStatement(ASTNode** list, ASTNode* stmt) {
         ASTNode* temp = *list;
         while (temp->next) temp = temp->next;
         temp->next = stmt;
+    }
+
+    if (*list != stmt && (*list)->parent && !stmt->parent) {
+        stmt->parent = (*list)->parent;
     }
 }
 
@@ -136,22 +155,34 @@ void printASTDetailed(ASTNode* root, int level) {
 }
 
 
+int calcComplexityHelper(ASTNode* node) {
+    if (!node) return 0;
+    int c = 0;
+    if (node->type == NODE_IF || 
+        node->type == NODE_WHILE || 
+        node->type == NODE_FOR ||
+        node->type == NODE_DO_WHILE) {
+        c = 1;
+    }
+    if (node->left) c += calcComplexityHelper(node->left);
+    if (node->right) c += calcComplexityHelper(node->right);
+    for (int i = 0; i < node->childCount; i++) {
+        if (node->children[i]) c += calcComplexityHelper(node->children[i]);
+    }
+    if (node->next) c += calcComplexityHelper(node->next);
+    return c;
+}
+
 int calculateComplexity(ASTNode* funcNode) {
     if (!funcNode || funcNode->type != NODE_FUNC_DECL) return 0;
     
     int complexity = 1; // Base complexity
     
-    // Count decision points
-    ASTNode* current = funcNode->left; // Body of function
-    
-    while (current) {
-        if (current->type == NODE_IF || 
-            current->type == NODE_WHILE || 
-            current->type == NODE_FOR ||
-            current->type == NODE_DO_WHILE) {
-            complexity++;
-        }
-        current = current->next;
+    // Count decision points recursively through body and children
+    if (funcNode->left) complexity += calcComplexityHelper(funcNode->left);
+    if (funcNode->right) complexity += calcComplexityHelper(funcNode->right);
+    for (int i = 0; i < funcNode->childCount; i++) {
+        if (funcNode->children[i]) complexity += calcComplexityHelper(funcNode->children[i]);
     }
     
     return complexity;
@@ -161,35 +192,38 @@ int calculateComplexity(ASTNode* funcNode) {
 int calculateNestingDepth(ASTNode* node, int currentDepth) {
     if (!node) return currentDepth;
     
-    int maxDepth = currentDepth;
+    int originalDepth = currentDepth;
+    int newDepth = currentDepth;
     
     if (node->type == NODE_IF || 
         node->type == NODE_WHILE || 
         node->type == NODE_FOR ||
         node->type == NODE_DO_WHILE ||
         node->type == NODE_BLOCK) {
-        currentDepth++;
+        newDepth++;
     }
     
+    int maxDepth = newDepth;
+    
     if (node->left) {
-        int depth = calculateNestingDepth(node->left, currentDepth);
+        int depth = calculateNestingDepth(node->left, newDepth);
         if (depth > maxDepth) maxDepth = depth;
     }
     
     if (node->right) {
-        int depth = calculateNestingDepth(node->right, currentDepth);
+        int depth = calculateNestingDepth(node->right, newDepth);
         if (depth > maxDepth) maxDepth = depth;
     }
     
     for (int i = 0; i < node->childCount; i++) {
         if (node->children[i]) {
-            int depth = calculateNestingDepth(node->children[i], currentDepth);
+            int depth = calculateNestingDepth(node->children[i], newDepth);
             if (depth > maxDepth) maxDepth = depth;
         }
     }
     
     if (node->next) {
-        int depth = calculateNestingDepth(node->next, currentDepth);
+        int depth = calculateNestingDepth(node->next, originalDepth); // Pass original depth to siblings!
         if (depth > maxDepth) maxDepth = depth;
     }
     
@@ -248,6 +282,9 @@ void freeAST(ASTNode* root) {
         if (root->children[i]) {
             freeAST(root->children[i]);
         }
+    }
+    if (root->children) {
+        free(root->children);
     }
     
     for (int i = 0; i < root->paramCount; i++) {

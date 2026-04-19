@@ -552,7 +552,15 @@ ASTNode* parse_file_to_ast(const char* filename) {
         return NULL;
     }
     ASTNode* root = createNode(NODE_PROGRAM, "Program");
-    ASTNode* current_stmt = NULL;
+    
+    ASTNode* block_stack[128];
+    ASTNode* stmt_stack[128];
+    int depth = 0;
+    
+    block_stack[depth] = root;
+    stmt_stack[depth] = NULL;
+    depth++;
+    
     char line[1024];
     int lineno = 0;
     int in_multiline_comment = 0;
@@ -579,44 +587,66 @@ ASTNode* parse_file_to_ast(const char* filename) {
         tmp[sizeof(tmp) - 1] = '\0';
         trim(tmp);
         if (strlen(tmp) == 0) continue;
+        
+        if (strchr(tmp, '}')) {
+            if (depth > 1) {
+                depth--;
+            }
+        }
+        
+        ASTNode* created_node = NULL;
+        
         if (looks_like_function_header(tmp)) {
             char name[MAX_NAME], type[MAX_TYPE];
             extract_name_from_function(tmp, name, type);
             if (strlen(name) > 0) {
-                ASTNode* func_node = createNodeWithLine(NODE_FUNC_DECL, name, lineno);
-                strncpy(func_node->returnType, type, sizeof(func_node->returnType) - 1);
-                appendStatement(&current_stmt, func_node);
-                addChild(root, func_node);
+                created_node = createNodeWithLine(NODE_FUNC_DECL, name, lineno);
+                strncpy(created_node->returnType, type, sizeof(created_node->returnType) - 1);
             }
-            continue;
+        } else {
+            char loop_type[32];
+            char cond_type[32];
+            
+            if (detect_loop(tmp, loop_type)) {
+                created_node = createNodeWithLine(NODE_FOR, loop_type, lineno);
+            } else if (detect_condition(tmp, cond_type)) {
+                created_node = createNodeWithLine(NODE_IF, cond_type, lineno);
+            } else if (detect_return(tmp)) {
+                created_node = createNodeWithLine(NODE_RETURN, "return", lineno);
+            } else {
+                char varname[MAX_NAME], vartype[MAX_TYPE];
+                extract_variable_from_line(tmp, varname, vartype);
+                if (strlen(varname) > 0) {
+                    created_node = createNodeWithLine(NODE_VAR_DECL, varname, lineno);
+                    strncpy(created_node->dataType, vartype, sizeof(created_node->dataType) - 1);
+                }
+            }
         }
-        char loop_type[32];
-        if (detect_loop(tmp, loop_type)) {
-            ASTNode* loop_node = createNodeWithLine(NODE_FOR, loop_type, lineno);
-            appendStatement(&current_stmt, loop_node);
-            addChild(root, loop_node);
-            continue;
-        }
-        char cond_type[32];
-        if (detect_condition(tmp, cond_type)) {
-            ASTNode* cond_node = createNodeWithLine(NODE_IF, cond_type, lineno);
-            appendStatement(&current_stmt, cond_node);
-            addChild(root, cond_node);
-            continue;
-        }
-        if (detect_return(tmp)) {
-            ASTNode* ret_node = createNodeWithLine(NODE_RETURN, "return", lineno);
-            appendStatement(&current_stmt, ret_node);
-            addChild(root, ret_node);
-            continue;
-        }
-        char varname[MAX_NAME], vartype[MAX_TYPE];
-        extract_variable_from_line(tmp, varname, vartype);
-        if (strlen(varname) > 0) {
-            ASTNode* var_node = createNodeWithLine(NODE_VAR_DECL, varname, lineno);
-            strncpy(var_node->dataType, vartype, sizeof(var_node->dataType) - 1);
-            appendStatement(&current_stmt, var_node);
-            addChild(root, var_node);
+        
+        if (created_node) {
+            ASTNode* current_parent = block_stack[depth - 1];
+            appendStatement(&stmt_stack[depth - 1], created_node);
+            addChild(current_parent, created_node);
+            
+            // if function, loop or conditional, push to stack assuming body follows
+            if (strchr(tmp, '{') || created_node->type == NODE_FUNC_DECL || 
+                created_node->type == NODE_FOR || created_node->type == NODE_IF) {
+                if (depth < 128) {
+                    block_stack[depth] = created_node;
+                    stmt_stack[depth] = NULL;
+                    depth++;
+                }
+            }
+        } else if (strchr(tmp, '{')) {
+            ASTNode* block = createNodeWithLine(NODE_BLOCK, "Block", lineno);
+            ASTNode* current_parent = block_stack[depth - 1];
+            appendStatement(&stmt_stack[depth - 1], block);
+            addChild(current_parent, block);
+            if (depth < 128) {
+                block_stack[depth] = block;
+                stmt_stack[depth] = NULL;
+                depth++;
+            }
         }
     }
     fclose(f);

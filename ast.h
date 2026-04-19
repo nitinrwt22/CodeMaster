@@ -47,7 +47,8 @@ typedef struct ASTNode {
     struct ASTNode* parent;                 // Parent node
     struct ASTNode* left;                   // Left child
     struct ASTNode* right;                  // Right child
-    struct ASTNode* children[MAX_CHILDREN]; // Array of children (flexible)
+    struct ASTNode** children;              // Array of children (dynamic)
+    int childCapacity;                      // Capacity of children array
     int childCount;                         // Number of children
     struct ASTNode* next;                   // Next sibling (for statement lists)
     
