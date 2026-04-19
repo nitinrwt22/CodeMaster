@@ -113,6 +113,15 @@ static int looks_like_function_header(const char* line) {
     after[63] = '\0';
     trim(after);
     if (strlen(after) > 0 && after[0] != '{') return 0;
+    
+    // Skip keywords
+    if (strstr(before_paren, "if") == before_paren || 
+        strstr(before_paren, "while") == before_paren || 
+        strstr(before_paren, "for") == before_paren || 
+        strstr(before_paren, "switch") == before_paren) {
+        return 0;
+    }
+    
     return 1;
 }
 
@@ -149,6 +158,18 @@ static void extract_name_from_function(const char* line, char* out_name, char* o
         else strncpy(out_type, "unknown", MAX_TYPE-1);
     }
     free(temp);
+}
+
+static int count_parameters(const char* line) {
+    const char* start = strchr(line, '(');
+    const char* end = strchr(line, ')');
+    if (!start || !end || start + 1 == end) return 0;
+    
+    int count = 1;
+    for (const char* p = start + 1; p < end; p++) {
+        if (*p == ',') count++;
+    }
+    return count;
 }
 
 static void extract_variable_from_line(const char* line, char* out_name, char* out_type) {
@@ -640,6 +661,7 @@ ASTNode* parse_file_to_ast(const char* filename) {
             if (strlen(name) > 0) {
                 created_node = createNodeWithLine(NODE_FUNC_DECL, name, lineno);
                 strncpy(created_node->returnType, type, sizeof(created_node->returnType) - 1);
+                created_node->paramCount = count_parameters(tmp);
             }
         } else {
             char loop_type[32];
@@ -659,6 +681,11 @@ ASTNode* parse_file_to_ast(const char* filename) {
                     strncpy(created_node->dataType, vartype, sizeof(created_node->dataType) - 1);
                     created_node->writeVars[0] = strdup(varname);
                     created_node->writeVarCount = 1;
+                    
+                    // If initializer exists, it also counts as a write
+                    if (strchr(tmp, '=')) {
+                        // We already set writeVarCount=1 which is correct for DFA tracking
+                    }
                 } else if (strchr(tmp, '=') && !strchr(tmp, '!') && !strchr(tmp, '<') && !strchr(tmp, '>')) {
                     // Possible assignment! `x = y + 1;`
                     char lhs[MAX_NAME];

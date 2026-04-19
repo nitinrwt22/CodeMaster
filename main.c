@@ -7,6 +7,7 @@
 #include "parser.h"
 #include "graph.h"
 #include "cfg.h"
+#include "quality_analyzer.h"
 #include <stdio.h>
 
 #define HT_SIZE 1031
@@ -52,6 +53,7 @@ static void print_menu() {
     printf("│ 15. Analyze AST (complexity & nesting depth)                   │\n");
     printf("│ 16. Extract function call graph                                │\n");
     printf("│ 17. Build Control Flow Graph (CFG)                             │\n");
+    printf("│ 18. Generate Ranked Code Quality Report                        │\n");
     printf("├────────────────────────────────────────────────────────────────┤\n");
     printf("│  0. Exit                                                       │\n");
     printf("└────────────────────────────────────────────────────────────────┘\n");
@@ -431,6 +433,19 @@ int main(int argc, char** argv) {
                     freeAST(ast);
                 } else {
                     printf("✗ Failed to extract AST for CFG\n");
+                }
+                wait_for_enter();
+                break;
+            }
+
+            case 18: {
+                printf("Generating Ranked Code Quality Report...\n");
+                ASTNode* ast = parse_file_to_ast(filename);
+                if (ast) {
+                    generate_ranked_report(ast, graph);
+                    freeAST(ast);
+                } else {
+                    printf("✗ Failed to analyze AST for quality report\n");
                 }
                 wait_for_enter();
                 break;

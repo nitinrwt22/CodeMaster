@@ -116,6 +116,24 @@ int calculateComplexity(ASTNode* funcNode);
 void analyzeDataFlowFunction(ASTNode* funcNode);
 
 /**
+ * Enhanced Data Flow tracking for quality reporting
+ */
+typedef struct {
+    char name[64];
+    int declaredLine;
+    int writeCount;
+    int readCount;
+    int unreadWriteLine;
+} VarUsage;
+
+typedef struct {
+    VarUsage vars[100];
+    int count;
+} DFA_Result;
+
+void run_dfa_analysis(ASTNode* funcNode, DFA_Result* result);
+
+/**
  * Calculates maximum nesting depth in a function
  */
 int calculateNestingDepth(ASTNode* node, int currentDepth);

@@ -281,7 +281,7 @@ static void track_data_flow_recursive(ASTNode* node, DataFlowContext* ctx) {
             strncpy(ctx->vars[ctx->count].name, node->writeVars[w], 63);
             ctx->vars[ctx->count].name[63] = '\0';
             ctx->vars[ctx->count].declaredLine = node->lineNumber;
-            ctx->vars[ctx->count].writeCount = 0;
+            ctx->vars[ctx->count].writeCount = (node->writeVarCount > 0 ? 1 : 0);
             ctx->vars[ctx->count].readCount = 0;
             ctx->vars[ctx->count].unreadWriteLine = 0;
             ctx->count++;
@@ -295,28 +295,35 @@ static void track_data_flow_recursive(ASTNode* node, DataFlowContext* ctx) {
     }
 }
 
+
+void run_dfa_analysis(ASTNode* funcNode, DFA_Result* result) {
+    if (!funcNode || funcNode->type != NODE_FUNC_DECL || !result) return;
+    
+    result->count = 0;
+    
+    if (funcNode->left) track_data_flow_recursive(funcNode->left, (DataFlowContext*)result);
+    if (funcNode->right) track_data_flow_recursive(funcNode->right, (DataFlowContext*)result);
+    for (int i = 0; i < funcNode->childCount; i++) {
+        if (funcNode->children[i]) track_data_flow_recursive(funcNode->children[i], (DataFlowContext*)result);
+    }
+}
+
 void analyzeDataFlowFunction(ASTNode* funcNode) {
     if (!funcNode || funcNode->type != NODE_FUNC_DECL) return;
     
-    DataFlowContext ctx;
-    ctx.count = 0;
-    
-    if (funcNode->left) track_data_flow_recursive(funcNode->left, &ctx);
-    if (funcNode->right) track_data_flow_recursive(funcNode->right, &ctx);
-    for (int i = 0; i < funcNode->childCount; i++) {
-        if (funcNode->children[i]) track_data_flow_recursive(funcNode->children[i], &ctx);
-    }
+    DFA_Result result;
+    run_dfa_analysis(funcNode, &result);
     
     printf("  ├─ Data Flow Analysis:\n");
     int issues = 0;
-    for (int i = 0; i < ctx.count; i++) {
-        if (ctx.vars[i].readCount == 0 && ctx.vars[i].writeCount == 0) {
+    for (int i = 0; i < result.count; i++) {
+        if (result.vars[i].readCount == 0 && result.vars[i].writeCount == 0) {
             printf("  │  └─ Warning: Variable '%s' declared but never used (Line %d)\n", 
-                   ctx.vars[i].name, ctx.vars[i].declaredLine);
+                   result.vars[i].name, result.vars[i].declaredLine);
             issues++;
-        } else if (ctx.vars[i].readCount == 0 && ctx.vars[i].writeCount > 0) {
+        } else if (result.vars[i].readCount == 0 && result.vars[i].writeCount > 0) {
             printf("  │  └─ Warning: Variable '%s' declared but never read (Line %d)\n", 
-                   ctx.vars[i].name, ctx.vars[i].declaredLine);
+                   result.vars[i].name, result.vars[i].declaredLine);
             issues++;
         }
     }
