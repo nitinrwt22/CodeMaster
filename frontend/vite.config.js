@@ -13,14 +13,25 @@ function customMiddlewarePlugin() {
     name: 'custom-middleware',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        // Handle /output static files
         if (req.url.startsWith('/output')) {
-          const filePath = path.resolve(projectRoot, 'output', req.url.replace('/output', ''));
-          // In simpler terms, if req.url is /output/symbols.json -> resolves to ../output/symbols.json
+          // Remove query string like ?t=1231235123 so fs.existsSync can find the file
+          const urlPath = req.url.split('?')[0];
+          
+          // Use path.join to avoid root-resetting behavior if urlPath still has a leading slash
+          const filePath = path.join(projectRoot, 'output', urlPath.replace('/output', ''));
+          
           if (fs.existsSync(filePath)) {
             res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
             const content = fs.readFileSync(filePath);
             return res.end(content);
+          } else {
+             // Return 404 JSON to prevent SPA fallback to index.html
+             res.statusCode = 404;
+             res.setHeader('Content-Type', 'application/json');
+             return res.end(JSON.stringify({ error: 'File not found locally' }));
           }
         }
         

@@ -1,95 +1,197 @@
 {
   "symbols": [
     {
-      "name": "many_params",
-      "type": "void",
-      "category": "function",
-      "line": 4
+      "name": "marks",
+      "type": "float",
+      "category": "variable",
+      "line": 10
     },
     {
-      "name": "secret_unused",
+      "name": "numbers",
+      "type": "int[]",
+      "category": "variable",
+      "line": 27
+    },
+    {
+      "name": "temp",
       "type": "int",
       "category": "variable",
-      "line": 25
+      "line": 149
+    },
+    {
+      "name": "printStudent",
+      "type": "void",
+      "category": "function",
+      "line": 78
+    },
+    {
+      "name": "unusedFunction",
+      "type": "void",
+      "category": "function",
+      "line": 161
+    },
+    {
+      "name": "complexFunction",
+      "type": "int",
+      "category": "function",
+      "line": 111
+    },
+    {
+      "name": "globalCounter",
+      "type": "int",
+      "category": "variable",
+      "line": 14
+    },
+    {
+      "name": "id",
+      "type": "int",
+      "category": "variable",
+      "line": 8
     },
     {
       "name": "a",
       "type": "int",
       "category": "variable",
-      "line": 4
+      "line": 147
     },
     {
-      "name": "b",
+      "name": "i",
       "type": "int",
       "category": "variable",
-      "line": 4
+      "line": 151
     },
     {
-      "name": "c",
+      "name": "maxArray",
       "type": "int",
-      "category": "variable",
-      "line": 4
+      "category": "function",
+      "line": 97
     },
     {
-      "name": "d",
+      "name": "n",
       "type": "int",
       "category": "variable",
-      "line": 4
+      "line": 70
     },
     {
-      "name": "e",
+      "name": "x",
       "type": "int",
       "category": "variable",
-      "line": 4
+      "line": 111
     },
     {
-      "name": "f",
+      "name": "y",
       "type": "int",
       "category": "variable",
-      "line": 4
-    },
-    {
-      "name": "g",
-      "type": "int",
-      "category": "variable",
-      "line": 4
+      "line": 111
     },
     {
       "name": "COND_if",
       "type": "if",
       "category": "condition",
-      "line": 14
+      "line": 122
     },
     {
-      "name": "partially_unused",
-      "type": "int",
+      "name": "Student",
+      "type": "struct",
       "category": "variable",
-      "line": 26
+      "line": 78
     },
     {
-      "name": "deep_nesting",
-      "type": "void",
-      "category": "function",
-      "line": 9
-    },
-    {
-      "name": "large_func",
-      "type": "void",
-      "category": "function",
-      "line": 31
-    },
-    {
-      "name": "main",
+      "name": "sumArray",
       "type": "int",
       "category": "function",
       "line": 85
     },
     {
-      "name": "unused_var_func",
-      "type": "void",
+      "name": "LOOP_for",
+      "type": "for",
+      "category": "loop",
+      "line": 151
+    },
+    {
+      "name": "result",
+      "type": "int",
+      "category": "variable",
+      "line": 112
+    },
+    {
+      "name": "fact",
+      "type": "int",
+      "category": "variable",
+      "line": 48
+    },
+    {
+      "name": "helperFunction",
+      "type": "int",
       "category": "function",
-      "line": 24
+      "line": 147
+    },
+    {
+      "name": "name",
+      "type": "char[]",
+      "category": "variable",
+      "line": 9
+    },
+    {
+      "name": "main",
+      "type": "int",
+      "category": "function",
+      "line": 26
+    },
+    {
+      "name": "COND_else",
+      "type": "else",
+      "category": "condition",
+      "line": 139
+    },
+    {
+      "name": "fib",
+      "type": "int",
+      "category": "variable",
+      "line": 49
+    },
+    {
+      "name": "LOOP_while",
+      "type": "while",
+      "category": "loop",
+      "line": 124
+    },
+    {
+      "name": "factorial",
+      "type": "int",
+      "category": "function",
+      "line": 62
+    },
+    {
+      "name": "arr",
+      "type": "int[]",
+      "category": "variable",
+      "line": 97
+    },
+    {
+      "name": "size",
+      "type": "int",
+      "category": "variable",
+      "line": 97
+    },
+    {
+      "name": "fibonacci",
+      "type": "int",
+      "category": "function",
+      "line": 70
+    },
+    {
+      "name": "sum",
+      "type": "int",
+      "category": "variable",
+      "line": 86
+    },
+    {
+      "name": "max",
+      "type": "int",
+      "category": "variable",
+      "line": 98
     }
   ],
-  "total_symbols": 15
+  "total_symbols": 32
 }
