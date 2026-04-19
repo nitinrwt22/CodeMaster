@@ -624,6 +624,13 @@ ASTNode* parse_file_to_ast(const char* filename) {
         }
         
         if (created_node) {
+            int logical_ops = 0;
+            char* p = tmp;
+            while ((p = strstr(p, "&&")) != NULL) { logical_ops++; p += 2; }
+            p = tmp;
+            while ((p = strstr(p, "||")) != NULL) { logical_ops++; p += 2; }
+            created_node->complexity = logical_ops;
+
             ASTNode* current_parent = block_stack[depth - 1];
             appendStatement(&stmt_stack[depth - 1], created_node);
             addChild(current_parent, created_node);

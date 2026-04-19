@@ -158,12 +158,21 @@ void printASTDetailed(ASTNode* root, int level) {
 int calcComplexityHelper(ASTNode* node) {
     if (!node) return 0;
     int c = 0;
-    if (node->type == NODE_IF || 
-        node->type == NODE_WHILE || 
-        node->type == NODE_FOR ||
-        node->type == NODE_DO_WHILE) {
+    
+    if (node->type == NODE_IF) {
+        if (strcmp(node->value, "if") == 0 || 
+            strcmp(node->value, "else-if") == 0 || 
+            strcmp(node->value, "case") == 0) {
+            c = 1;
+        }
+    } else if (node->type == NODE_WHILE || 
+               node->type == NODE_FOR ||
+               node->type == NODE_DO_WHILE) {
         c = 1;
     }
+    
+    c += node->complexity;
+
     if (node->left) c += calcComplexityHelper(node->left);
     if (node->right) c += calcComplexityHelper(node->right);
     for (int i = 0; i < node->childCount; i++) {
