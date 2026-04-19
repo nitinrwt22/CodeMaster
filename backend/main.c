@@ -124,11 +124,29 @@ int main(int argc, char** argv) {
         printf("   Make sure the file contains valid C code.\n\n");
     }
 
+    // Check for headless mode
+    int headless = 0;
+    for (int i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "--headless") == 0) {
+            headless = 1;
+            break;
+        }
+    }
+
     // ── Auto-export all JSON analysis results to output/ ────────────────
     ASTNode* ast_for_json = parse_file_to_ast(filename);
     export_all_json(ht, graph, ast_for_json);
     if (ast_for_json) freeAST(ast_for_json);
     // ────────────────────────────────────────────────────────────────────
+
+    if (headless) {
+        printf("\n[Headless] Analysis complete. Services exported. Exiting...\n");
+        ht_destroy(ht);
+        trie_destroy(trie);
+        avl_destroy(avl);
+        graph_destroy(graph);
+        return 0;
+    }
 
     wait_for_enter();
     
