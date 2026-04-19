@@ -1,0 +1,67 @@
+{
+  "functions": [
+    {
+      "name": "many_params",
+      "return_type": "void",
+      "line": 4,
+      "out_degree": 0,
+      "in_degree": 1,
+      "is_recursive": false,
+      "is_dead_code": false,
+      "is_highly_coupled": false,
+      "calls": [],
+      "call_count": 0
+    },
+    {
+      "name": "deep_nesting",
+      "return_type": "void",
+      "line": 9,
+      "out_degree": 0,
+      "in_degree": 1,
+      "is_recursive": false,
+      "is_dead_code": false,
+      "is_highly_coupled": false,
+      "calls": [],
+      "call_count": 0
+    },
+    {
+      "name": "unused_var_func",
+      "return_type": "void",
+      "line": 24,
+      "out_degree": 0,
+      "in_degree": 1,
+      "is_recursive": false,
+      "is_dead_code": false,
+      "is_highly_coupled": false,
+      "calls": [],
+      "call_count": 0
+    },
+    {
+      "name": "large_func",
+      "return_type": "void",
+      "line": 31,
+      "out_degree": 0,
+      "in_degree": 1,
+      "is_recursive": false,
+      "is_dead_code": false,
+      "is_highly_coupled": false,
+      "calls": [],
+      "call_count": 0
+    },
+    {
+      "name": "main",
+      "return_type": "int",
+      "line": 85,
+      "out_degree": 4,
+      "in_degree": 0,
+      "is_recursive": false,
+      "is_dead_code": false,
+      "is_highly_coupled": false,
+      "calls": ["large_func", "unused_var_func", "deep_nesting", "many_params"],
+      "call_count": 4
+    }
+  ],
+  "total_functions": 5,
+  "total_calls": 4,
+  "has_cycles": false
+}

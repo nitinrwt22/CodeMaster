@@ -8,6 +8,7 @@
 #include "graph.h"
 #include "cfg.h"
 #include "quality_analyzer.h"
+#include "json_export.h"
 #include <stdio.h>
 
 #define HT_SIZE 1031
@@ -122,7 +123,13 @@ int main(int argc, char** argv) {
         printf("\n⚠ Warning: No symbols found in file.\n");
         printf("   Make sure the file contains valid C code.\n\n");
     }
-    
+
+    // ── Auto-export all JSON analysis results to output/ ────────────────
+    ASTNode* ast_for_json = parse_file_to_ast(filename);
+    export_all_json(ht, graph, ast_for_json);
+    if (ast_for_json) freeAST(ast_for_json);
+    // ────────────────────────────────────────────────────────────────────
+
     wait_for_enter();
     
     int running = 1;

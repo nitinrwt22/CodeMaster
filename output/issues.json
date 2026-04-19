@@ -1,0 +1,45 @@
+{
+  "issues": [
+    {
+      "severity": 5,
+      "severity_label": "critical",
+      "type": "unused_variable",
+      "function": "unused_var_func",
+      "line": 25,
+      "message": "Variable 'secret_unused' declared and assigned but never read"
+    },
+    {
+      "severity": 5,
+      "severity_label": "critical",
+      "type": "unused_variable",
+      "function": "unused_var_func",
+      "line": 26,
+      "message": "Variable 'partially_unused' declared and assigned but never read"
+    },
+    {
+      "severity": 4,
+      "severity_label": "high",
+      "type": "deep_nesting",
+      "function": "deep_nesting",
+      "line": 9,
+      "message": "Function 'deep_nesting' has deep nesting (5 > 4)"
+    },
+    {
+      "severity": 3,
+      "severity_label": "medium",
+      "type": "large_function",
+      "function": "large_func",
+      "line": 31,
+      "message": "Function 'large_func' is too large (52 lines > 50)"
+    },
+    {
+      "severity": 2,
+      "severity_label": "low",
+      "type": "too_many_parameters",
+      "function": "many_params",
+      "line": 4,
+      "message": "Function 'many_params' has too many parameters (7 > 5)"
+    }
+  ],
+  "total_issues": 5
+}

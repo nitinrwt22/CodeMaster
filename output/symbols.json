@@ -1,0 +1,95 @@
+{
+  "symbols": [
+    {
+      "name": "many_params",
+      "type": "void",
+      "category": "function",
+      "line": 4
+    },
+    {
+      "name": "secret_unused",
+      "type": "int",
+      "category": "variable",
+      "line": 25
+    },
+    {
+      "name": "a",
+      "type": "int",
+      "category": "variable",
+      "line": 4
+    },
+    {
+      "name": "b",
+      "type": "int",
+      "category": "variable",
+      "line": 4
+    },
+    {
+      "name": "c",
+      "type": "int",
+      "category": "variable",
+      "line": 4
+    },
+    {
+      "name": "d",
+      "type": "int",
+      "category": "variable",
+      "line": 4
+    },
+    {
+      "name": "e",
+      "type": "int",
+      "category": "variable",
+      "line": 4
+    },
+    {
+      "name": "f",
+      "type": "int",
+      "category": "variable",
+      "line": 4
+    },
+    {
+      "name": "g",
+      "type": "int",
+      "category": "variable",
+      "line": 4
+    },
+    {
+      "name": "COND_if",
+      "type": "if",
+      "category": "condition",
+      "line": 14
+    },
+    {
+      "name": "partially_unused",
+      "type": "int",
+      "category": "variable",
+      "line": 26
+    },
+    {
+      "name": "deep_nesting",
+      "type": "void",
+      "category": "function",
+      "line": 9
+    },
+    {
+      "name": "large_func",
+      "type": "void",
+      "category": "function",
+      "line": 31
+    },
+    {
+      "name": "main",
+      "type": "int",
+      "category": "function",
+      "line": 85
+    },
+    {
+      "name": "unused_var_func",
+      "type": "void",
+      "category": "function",
+      "line": 24
+    }
+  ],
+  "total_symbols": 15
+}

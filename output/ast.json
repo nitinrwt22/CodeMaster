@@ -1,0 +1,574 @@
+{
+  "type": "PROGRAM",
+  "value": "Program",
+  "line": 0,
+  "children": [
+    {
+      "type": "EXPRESSION",
+      "value": "expr",
+      "line": 1,
+      "children": [
+      ]
+    },
+    {
+      "type": "FUNCTION_DECL",
+      "value": "many_params",
+      "line": 4,
+      "children": [
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 5,
+          "children": [
+          ]
+        }
+      ]
+    },
+    {
+      "type": "EXPRESSION",
+      "value": "expr",
+      "line": 6,
+      "children": [
+      ]
+    },
+    {
+      "type": "FUNCTION_DECL",
+      "value": "deep_nesting",
+      "line": 9,
+      "children": [
+        {
+          "type": "IF",
+          "value": "if",
+          "line": 10,
+          "children": [
+            {
+              "type": "IF",
+              "value": "if",
+              "line": 11,
+              "children": [
+                {
+                  "type": "IF",
+                  "value": "if",
+                  "line": 12,
+                  "children": [
+                    {
+                      "type": "IF",
+                      "value": "if",
+                      "line": 13,
+                      "children": [
+                        {
+                          "type": "IF",
+                          "value": "if",
+                          "line": 14,
+                          "children": [
+                            {
+                              "type": "EXPRESSION",
+                              "value": "expr",
+                              "line": 15,
+                              "children": [
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "EXPRESSION",
+                          "value": "expr",
+                          "line": 16,
+                          "children": [
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "EXPRESSION",
+                      "value": "expr",
+                      "line": 17,
+                      "children": [
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "EXPRESSION",
+                  "value": "expr",
+                  "line": 18,
+                  "children": [
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "EXPRESSION",
+              "value": "expr",
+              "line": 19,
+              "children": [
+              ]
+            }
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 20,
+          "children": [
+          ]
+        }
+      ]
+    },
+    {
+      "type": "EXPRESSION",
+      "value": "expr",
+      "line": 21,
+      "children": [
+      ]
+    },
+    {
+      "type": "FUNCTION_DECL",
+      "value": "unused_var_func",
+      "line": 24,
+      "children": [
+        {
+          "type": "VAR_DECL",
+          "value": "secret_unused",
+          "line": 25,
+          "children": [
+          ]
+        },
+        {
+          "type": "VAR_DECL",
+          "value": "partially_unused",
+          "line": 26,
+          "children": [
+          ]
+        }
+      ]
+    },
+    {
+      "type": "EXPRESSION",
+      "value": "expr",
+      "line": 28,
+      "children": [
+      ]
+    },
+    {
+      "type": "FUNCTION_DECL",
+      "value": "large_func",
+      "line": 31,
+      "children": [
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 32,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 33,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 34,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 35,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 36,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 37,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 38,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 39,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 40,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 41,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 42,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 43,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 44,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 45,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 46,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 47,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 48,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 49,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 50,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 51,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 52,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 53,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 54,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 55,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 56,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 57,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 58,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 59,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 60,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 61,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 62,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 63,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 64,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 65,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 66,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 67,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 68,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 69,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 70,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 71,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 72,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 73,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 74,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 75,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 76,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 77,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 78,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 79,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 80,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 81,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 82,
+          "children": [
+          ]
+        }
+      ]
+    },
+    {
+      "type": "EXPRESSION",
+      "value": "expr",
+      "line": 83,
+      "children": [
+      ]
+    },
+    {
+      "type": "FUNCTION_DECL",
+      "value": "main",
+      "line": 85,
+      "children": [
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 86,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 87,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 88,
+          "children": [
+          ]
+        },
+        {
+          "type": "EXPRESSION",
+          "value": "expr",
+          "line": 89,
+          "children": [
+          ]
+        },
+        {
+          "type": "RETURN",
+          "value": "return",
+          "line": 90,
+          "children": [
+          ]
+        }
+      ]
+    },
+    {
+      "type": "EXPRESSION",
+      "value": "expr",
+      "line": 91,
+      "children": [
+      ]
+    }
+  ]
+}

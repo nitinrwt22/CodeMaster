@@ -8,10 +8,11 @@ obj/
 # OS metadata
 .DS_Store
 
-# Outputs
+# Outputs — suppress binary exports but keep JSON for frontend
 output/*.dot
 output/*.csv
 !output/.gitkeep
+!output/*.json
 
 # Documents
 *.pages
