@@ -1,9 +1,0 @@
-Name,Type,Category,Line
-add,int,function,4
-sum,int,variable,5
-printResult,void,function,9
-main,int,function,13
-a,int,variable,14
-b,int,variable,15
-(for),for,loop,19
-(else),else,condition,25
