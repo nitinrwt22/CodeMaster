@@ -44,8 +44,8 @@ function customMiddlewarePlugin() {
             const targetFilePath = path.resolve(projectRoot, 'target_input.c');
             fs.writeFileSync(targetFilePath, sourceCode);
 
-            // Execute the analyzer
-            exec('./master_bin target_input.c', { cwd: projectRoot }, (error, stdout, stderr) => {
+            // Execute the analyzer (pipe newline since master_bin waits for ENTER)
+            exec('echo "" | ./master_bin target_input.c', { cwd: projectRoot }, (error, stdout, stderr) => {
                if (error) {
                  console.error('Execution error:', error);
                  res.statusCode = 500;
