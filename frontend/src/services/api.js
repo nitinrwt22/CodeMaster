@@ -21,3 +21,15 @@ export const getIssues = async () => {
   if (!response.ok) throw new Error('Failed to fetch issues');
   return response.json();
 };
+
+export const analyzeCode = async (source) => {
+  const response = await fetch('/api/analyze', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ source }),
+  });
+  if (!response.ok) throw new Error('Failed to analyze code');
+  return response.json();
+};
