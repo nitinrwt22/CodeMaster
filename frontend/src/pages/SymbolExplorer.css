@@ -1,0 +1,41 @@
+.symbol-explorer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.toolbar {
+  display: flex;
+  gap: 1rem;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.75rem 1rem;
+  border-radius: var(--rounded-md);
+  background: var(--color-surface-container-lowest);
+  border: 1px solid rgba(64, 72, 93, 0.2);
+  color: var(--color-on-surface);
+  font-family: inherit;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 191, 250, 0.2);
+  border-color: var(--color-primary);
+}
+
+.cat-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--rounded-sm);
+  background: var(--color-surface-variant);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}

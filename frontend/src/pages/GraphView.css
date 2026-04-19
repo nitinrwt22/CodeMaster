@@ -1,0 +1,12 @@
+.graph-container {
+  height: 60vh;
+  overflow: auto;
+  position: relative;
+}
+
+.data-preview {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--color-on-surface-variant);
+  margin: 0;
+}

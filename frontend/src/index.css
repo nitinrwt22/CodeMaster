@@ -1,0 +1,184 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap');
+
+:root {
+  --color-background: #060e20;
+  --color-surface: #060e20;
+  --color-surface-container-low: #091328;
+  --color-surface-container-high: #141f38;
+  --color-surface-container-highest: #192540;
+  --color-surface-variant: #192540;
+  --color-primary: #3bbffa;
+  --color-primary-container: #22b1ec;
+  --color-on-primary: #00374d;
+  --color-secondary: #69f6b8;
+  --color-on-secondary: #005a3c;
+  --color-tertiary: #ff6f7e;
+  --color-error: #ff716c;
+  --color-error-container: #9f0519;
+  --color-on-error-container: #ffa8a3;
+  --color-on-surface: #dee5ff;
+  --color-on-surface-variant: #a3aac4;
+  --color-outline: #6d758c;
+  --color-outline-variant: #40485d;
+  --color-surface-bright: #1f2b49;
+
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'Fira Code', monospace;
+
+  --rounded-sm: 0.25rem;
+  --rounded-md: 0.5rem;
+  --rounded-lg: 0.5rem;
+  --rounded-xl: 0.75rem;
+  --rounded-full: 9999px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+  color: var(--color-on-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+code, pre {
+  font-family: var(--font-mono);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  color: inherit;
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: rgba(9, 19, 40, 0.6); /* surface-container-low */
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(64, 72, 93, 0.15); /* outline-variant */
+}
+
+/* Glowing Elements */
+.glow-primary {
+  box-shadow: 0 0 16px rgba(59, 191, 250, 0.2);
+}
+
+.glow-secondary {
+  box-shadow: 0 0 16px rgba(105, 246, 184, 0.2);
+}
+
+/* Cards */
+.ethereal-card {
+  background: var(--color-surface-container-low);
+  border-radius: var(--rounded-xl);
+  padding: 1.5rem;
+  /* Ghost border fallback */
+  border: 1px solid rgba(64, 72, 93, 0.15);
+  transition: all 0.3s ease;
+}
+
+.ethereal-card:hover {
+  background: var(--color-surface-container-high);
+}
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-container));
+  color: var(--color-on-primary);
+  padding: 0.5rem 1rem;
+  border-radius: var(--rounded-md);
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+}
+
+.btn-glass {
+  background: rgba(25, 37, 64, 0.4); /* surface_variant */
+  backdrop-filter: blur(12px);
+  color: var(--color-primary);
+  padding: 0.5rem 1rem;
+  border-radius: var(--rounded-md);
+  border: 1px solid rgba(109, 117, 140, 0.1);
+  transition: background 0.2s;
+}
+
+.btn-glass:hover {
+  background: rgba(31, 43, 73, 0.6); /* surface_bright */
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-variant);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-outline-variant);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.625rem;
+  border-radius: var(--rounded-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-critical {
+  background: var(--color-error-container);
+  color: var(--color-on-error-container);
+}
+
+.badge-high {
+  background: rgba(255, 113, 108, 0.2);
+  color: var(--color-error);
+}
+
+.badge-medium {
+  background: rgba(255, 111, 126, 0.2);
+  color: var(--color-tertiary);
+}
+
+.badge-low {
+  background: rgba(59, 191, 250, 0.2);
+  color: var(--color-primary);
+}
+
+.badge-success {
+  background: var(--color-secondary);
+  color: var(--color-on-secondary);
+}
+
+.badge-info {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}

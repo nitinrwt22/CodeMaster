@@ -1,0 +1,19 @@
+.issues-report {
+  display: flex;
+  flex-direction: column;
+}
+
+.issues-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.no-issues {
+  padding: 3rem;
+  text-align: center;
+  color: var(--color-on-surface-variant);
+  background: var(--color-surface-container-low);
+  border-radius: var(--rounded-xl);
+  border: 1px dashed rgba(64, 72, 93, 0.3);
+}

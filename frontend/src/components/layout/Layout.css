@@ -1,0 +1,35 @@
+.layout-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.layout-main {
+  flex: 1;
+  margin-left: 280px; /* Sidebar width */
+  min-height: 100vh;
+  background: var(--color-background);
+}
+
+.content-wrapper {
+  padding: 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Page Headers */
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-on-surface);
+  margin-bottom: 0.5rem;
+}
+
+.page-header p {
+  color: var(--color-on-surface-variant);
+  font-size: 1rem;
+}

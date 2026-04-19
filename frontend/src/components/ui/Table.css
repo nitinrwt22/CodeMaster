@@ -1,0 +1,46 @@
+.ethereal-table-container {
+  width: 100%;
+  overflow-x: auto;
+  background: var(--color-surface-container-low);
+  border-radius: var(--rounded-xl);
+  border: 1px solid rgba(64, 72, 93, 0.15); /* outline-variant */
+}
+
+.ethereal-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.ethereal-table th {
+  padding: 1rem 1.5rem;
+  font-size: 0.75rem; /* label-sm */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-on-surface-variant);
+  background: var(--color-surface-container-highest);
+  border-bottom: 1px solid rgba(64, 72, 93, 0.2);
+}
+
+.ethereal-table td {
+  padding: 1rem 1.5rem;
+  font-size: 0.875rem; /* body-md */
+  color: var(--color-on-surface);
+  border-bottom: 1px solid rgba(64, 72, 93, 0.1);
+  transition: background 0.2s;
+}
+
+.ethereal-table tr:last-child td {
+  border-bottom: none;
+}
+
+.ethereal-table tbody tr:hover td {
+  background: rgba(25, 37, 64, 0.4); /* surface_variant slightly transparent */
+}
+
+.table-empty {
+  text-align: center;
+  color: var(--color-on-surface-variant);
+  padding: 3rem !important;
+}

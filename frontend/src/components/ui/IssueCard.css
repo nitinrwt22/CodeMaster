@@ -1,0 +1,56 @@
+.issue-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.issue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.issue-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.issue-type {
+  font-weight: 500;
+  color: var(--color-on-surface);
+  text-transform: capitalize;
+}
+
+.issue-location {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--color-on-surface-variant);
+  background: var(--color-surface-variant);
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--rounded-md);
+}
+
+.loc-func {
+  color: var(--color-on-surface);
+}
+
+.loc-line {
+  color: var(--color-primary);
+}
+
+.issue-body p {
+  color: var(--color-on-surface-variant);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.icon-critical { color: var(--color-error); }
+.icon-high { color: rgba(255, 113, 108, 0.8); }
+.icon-medium { color: var(--color-tertiary); }
+.icon-low { color: var(--color-primary); }
