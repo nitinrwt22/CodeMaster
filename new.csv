@@ -1,0 +1,31 @@
+Name,Type,Category,Line
+MAX,#define,function,6
+hidden,static int,variable,10
+Status,enum,variable,12
+{,typedef struct,variable,15
+id,int,variable,16
+name,char,variable,17
+score,float,variable,18
+main,int,function,34
+a,int,variable,39
+greet,void,function,68
+testScope,void,function,72
+counter,int,variable,75
+testArrayAndPointers,void,function,81
+arr,int,variable,82
+ptr,int,variable,83
+computeArea,double,function,92
+factorial,int,function,96
+processStudent,void,function,101
+recursivePrint,void,function,109
+COND_if,if,condition,110
+edgeCaseTests,void,function,115
+LOOP_for,for,loop,118
+unused,int,variable,120
+x,int,variable,122
+COND_case,case,condition,139
+data,int,variable,143
+p,int,variable,144
+str,char,variable,148
+denom,int,variable,153
+COND_else,else,condition,156

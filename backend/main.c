@@ -363,8 +363,8 @@ int main(int argc, char** argv) {
         graph_print_hierarchy(graph, "main");
         graph_detect_cycles(graph);
         graph_generate_report(graph);
-        graph_export_dot(graph, "function_graph.dot");
-        graph_export_csv(graph, "function_calls.csv");
+        graph_export_dot(graph, "output/function_graph.dot");
+        graph_export_csv(graph, "output/function_calls.csv");
     }
 
     wait_for_enter();
@@ -424,8 +424,8 @@ int main(int argc, char** argv) {
                     CFG* cfg = cfg_build_from_ast(ast);
                     if (cfg) {
                         cfg_print(cfg);
-                        cfg_export_dot(cfg, "function_cfg.dot");
-                        printf("\n✓ CFG logic paths successfully extracted to function_cfg.dot\n");
+                        cfg_export_dot(cfg, "output/function_cfg.dot");
+                        printf("\n✓ CFG logic paths successfully extracted to output/function_cfg.dot\n");
                         cfg_destroy(cfg);
                     } else {
                         printf("✗ Failed to build CFG\n");
