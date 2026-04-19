@@ -33,6 +33,44 @@ static void trim(char* s) {
     while (len > 0 && isspace((unsigned char)s[len-1])) s[--len] = '\0';
 }
 
+static int is_basic_keyword(const char* s) {
+    const char* kw[] = {"int","float","double","char","long","short","void","unsigned","signed","size_t",
+                        "struct","union","enum","const","static","extern","typedef",
+                        "return","if","else","for","while","do","switch","case","break","continue","sizeof"};
+    for (int i=0; i<sizeof(kw)/sizeof(kw[0]); i++) if (strcmp(s, kw[i])==0) return 1;
+    return 0;
+}
+
+static void extract_reads(const char* str, ASTNode* node) {
+    char temp[1024];
+    strncpy(temp, str, 1023); temp[1023] = '\0';
+    char* p = strchr(temp, '='); 
+    char* start = temp;
+    if (p && node->type != NODE_IF && node->type != NODE_FOR && node->type != NODE_WHILE && node->type != NODE_DO_WHILE) {
+        start = p + 1;
+    } else if (node->type == NODE_VAR_DECL && !p) {
+        start = NULL; 
+    }
+    
+    if (start) {
+        char* tok = strtok(start, " \t()+-*/=;[]{}\"\'&|!<>%,");
+        while (tok && node->readVarCount < 10) {
+            if (isalpha(tok[0]) || tok[0] == '_') {
+                if (!is_basic_keyword(tok)) {
+                    int skip = 0;
+                    for (int w = 0; w < node->writeVarCount; w++) {
+                        if (node->writeVars[w] && strcmp(tok, node->writeVars[w]) == 0) skip = 1;
+                    }
+                    if (!skip) {
+                        node->readVars[node->readVarCount++] = strdup(tok);
+                    }
+                }
+            }
+            tok = strtok(NULL, " \t()+-*/=;[]{}\"\'&|!<>%,");
+        }
+    }
+}
+
 static void strip_comments(char* line) {
     char* comment = strstr(line, "//");
     if (comment) *comment = '\0';
@@ -619,11 +657,36 @@ ASTNode* parse_file_to_ast(const char* filename) {
                 if (strlen(varname) > 0) {
                     created_node = createNodeWithLine(NODE_VAR_DECL, varname, lineno);
                     strncpy(created_node->dataType, vartype, sizeof(created_node->dataType) - 1);
+                    created_node->writeVars[0] = strdup(varname);
+                    created_node->writeVarCount = 1;
+                } else if (strchr(tmp, '=') && !strchr(tmp, '!') && !strchr(tmp, '<') && !strchr(tmp, '>')) {
+                    // Possible assignment! `x = y + 1;`
+                    char lhs[MAX_NAME];
+                    int i = 0;
+                    while (tmp[i] && tmp[i] != '=' && isspace(tmp[i])) i++; // skip leading space
+                    int start = i;
+                    while (tmp[i] && tmp[i] != '=' && !isspace(tmp[i]) && (isalnum(tmp[i]) || tmp[i] == '_')) i++;
+                    int len = i - start;
+                    if (len > 0 && len < MAX_NAME && tmp[start] != '=') {
+                        strncpy(lhs, tmp + start, len);
+                        lhs[len] = '\0';
+                        while (tmp[i] && isspace(tmp[i])) i++;
+                        if (tmp[i] == '=') {
+                            created_node = createNodeWithLine(NODE_ASSIGN, "=", lineno);
+                            created_node->writeVars[0] = strdup(lhs);
+                            created_node->writeVarCount = 1;
+                        }
+                    }
+                } else {
+                    // Generic expression usage (e.g. `printf(x);` or `func(a)`)
+                    created_node = createNodeWithLine(NODE_EXPR, "expr", lineno);
                 }
             }
         }
         
         if (created_node) {
+            extract_reads(tmp, created_node);
+            
             int logical_ops = 0;
             char* p = tmp;
             while ((p = strstr(p, "&&")) != NULL) { logical_ops++; p += 2; }
@@ -694,7 +757,9 @@ void analyze_ast(ASTNode* root) {
             int complexity = calculateComplexity(curr);
             int nesting = calculateNestingDepth(curr, 0);
             printf("  ├─ Cyclomatic Complexity: %d\n", complexity);
-            printf("  └─ Max Nesting Depth: %d\n\n", nesting);
+            printf("  ├─ Max Nesting Depth: %d\n", nesting);
+            analyzeDataFlowFunction(curr);
+            printf("\n");
         }
         curr = curr->next;
     }

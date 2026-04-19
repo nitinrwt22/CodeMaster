@@ -56,6 +56,12 @@ typedef struct ASTNode {
     char* parameters[MAX_PARAMS];           // Function parameters
     int paramCount;
     char returnType[64];                    // Return type for functions
+
+    // Data Flow tracking
+    char* readVars[10];
+    int readVarCount;
+    char* writeVars[5];
+    int writeVarCount;
     
 } ASTNode;
 
@@ -103,6 +109,11 @@ void printASTDetailed(ASTNode* root, int level);
  * Calculates cyclomatic complexity for a function
  */
 int calculateComplexity(ASTNode* funcNode);
+
+/**
+ * Executes a recursive Data Flow check for unread, unused, and overwritten logic scopes 
+ */
+void analyzeDataFlowFunction(ASTNode* funcNode);
 
 /**
  * Calculates maximum nesting depth in a function

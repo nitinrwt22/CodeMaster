@@ -43,6 +43,12 @@ ASTNode* createNodeWithLine(NodeType type, const char* value, int lineNumber) {
         }
     }
     
+    node->readVarCount = 0;
+    for (int i = 0; i < 10; i++) node->readVars[i] = NULL;
+    
+    node->writeVarCount = 0;
+    for (int i = 0; i < 5; i++) node->writeVars[i] = NULL;
+
     return node;
 }
 
@@ -178,7 +184,6 @@ int calcComplexityHelper(ASTNode* node) {
     for (int i = 0; i < node->childCount; i++) {
         if (node->children[i]) c += calcComplexityHelper(node->children[i]);
     }
-    if (node->next) c += calcComplexityHelper(node->next);
     return c;
 }
 
@@ -231,12 +236,91 @@ int calculateNestingDepth(ASTNode* node, int currentDepth) {
         }
     }
     
-    if (node->next) {
-        int depth = calculateNestingDepth(node->next, originalDepth); // Pass original depth to siblings!
-        if (depth > maxDepth) maxDepth = depth;
+    return maxDepth;
+}
+
+typedef struct {
+    char name[64];
+    int declaredLine;
+    int writeCount;
+    int readCount;
+    int unreadWriteLine; // 0 if no unread write
+} VarInfo;
+
+typedef struct {
+    VarInfo vars[100];
+    int count;
+} DataFlowContext;
+
+static void track_data_flow_recursive(ASTNode* node, DataFlowContext* ctx) {
+    if (!node) return;
+    
+    for (int r = 0; r < node->readVarCount; r++) {
+        for (int i = 0; i < ctx->count; i++) {
+            if (strcmp(ctx->vars[i].name, node->readVars[r]) == 0) {
+                ctx->vars[i].readCount++;
+                ctx->vars[i].unreadWriteLine = 0;
+            }
+        }
     }
     
-    return maxDepth;
+    for (int w = 0; w < node->writeVarCount; w++) {
+        int found = 0;
+        for (int i = 0; i < ctx->count; i++) {
+            if (strcmp(ctx->vars[i].name, node->writeVars[w]) == 0) {
+                found = 1;
+                if (ctx->vars[i].unreadWriteLine != 0 && node->type == NODE_ASSIGN) {
+                    printf("  │  └─ Warning: Variable '%s' overwritten before use (Line %d)\n", 
+                           ctx->vars[i].name, node->lineNumber);
+                }
+                ctx->vars[i].writeCount++;
+                ctx->vars[i].unreadWriteLine = node->lineNumber;
+            }
+        }
+        if (!found && node->type == NODE_VAR_DECL) {
+            strncpy(ctx->vars[ctx->count].name, node->writeVars[w], 63);
+            ctx->vars[ctx->count].name[63] = '\0';
+            ctx->vars[ctx->count].declaredLine = node->lineNumber;
+            ctx->vars[ctx->count].writeCount = 0;
+            ctx->vars[ctx->count].readCount = 0;
+            ctx->vars[ctx->count].unreadWriteLine = 0;
+            ctx->count++;
+        }
+    }
+
+    if (node->left) track_data_flow_recursive(node->left, ctx);
+    if (node->right) track_data_flow_recursive(node->right, ctx);
+    for (int i = 0; i < node->childCount; i++) {
+        if (node->children[i]) track_data_flow_recursive(node->children[i], ctx);
+    }
+}
+
+void analyzeDataFlowFunction(ASTNode* funcNode) {
+    if (!funcNode || funcNode->type != NODE_FUNC_DECL) return;
+    
+    DataFlowContext ctx;
+    ctx.count = 0;
+    
+    if (funcNode->left) track_data_flow_recursive(funcNode->left, &ctx);
+    if (funcNode->right) track_data_flow_recursive(funcNode->right, &ctx);
+    for (int i = 0; i < funcNode->childCount; i++) {
+        if (funcNode->children[i]) track_data_flow_recursive(funcNode->children[i], &ctx);
+    }
+    
+    printf("  ├─ Data Flow Analysis:\n");
+    int issues = 0;
+    for (int i = 0; i < ctx.count; i++) {
+        if (ctx.vars[i].readCount == 0 && ctx.vars[i].writeCount == 0) {
+            printf("  │  └─ Warning: Variable '%s' declared but never used (Line %d)\n", 
+                   ctx.vars[i].name, ctx.vars[i].declaredLine);
+            issues++;
+        } else if (ctx.vars[i].readCount == 0 && ctx.vars[i].writeCount > 0) {
+            printf("  │  └─ Warning: Variable '%s' declared but never read (Line %d)\n", 
+                   ctx.vars[i].name, ctx.vars[i].declaredLine);
+            issues++;
+        }
+    }
+    if (issues == 0) printf("  │  └─ No unused or unread variables detected.\n");
 }
 
 
@@ -251,8 +335,6 @@ int countNodes(ASTNode* root) {
     for (int i = 0; i < root->childCount; i++) {
         if (root->children[i]) count += countNodes(root->children[i]);
     }
-    
-    if (root->next) count += countNodes(root->next);
     
     return count;
 }
@@ -285,7 +367,6 @@ void freeAST(ASTNode* root) {
     
     freeAST(root->left);
     freeAST(root->right);
-    freeAST(root->next);
     
     for (int i = 0; i < root->childCount; i++) {
         if (root->children[i]) {
@@ -299,6 +380,18 @@ void freeAST(ASTNode* root) {
     for (int i = 0; i < root->paramCount; i++) {
         if (root->parameters[i]) {
             free(root->parameters[i]);
+        }
+    }
+    
+    for (int i = 0; i < root->readVarCount; i++) {
+        if (root->readVars[i]) {
+            free(root->readVars[i]);
+        }
+    }
+    
+    for (int i = 0; i < root->writeVarCount; i++) {
+        if (root->writeVars[i]) {
+            free(root->writeVars[i]);
         }
     }
     
