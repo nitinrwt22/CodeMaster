@@ -191,6 +191,7 @@ export default function Dashboard() {
       const functions  = (graphData.functions || []);
       const symbols    = (symData.symbols || []);
       const issues     = (issueData.issues || []);
+      const summary    = issueData.summary || {};
       const fnCount    = graphData.total_functions || functions.length;
       const varCount   = symbols.filter(s => s.category === 'variable').length;
       const issueCount = issueData.total_issues || issues.length;
@@ -198,8 +199,9 @@ export default function Dashboard() {
       const deadCount  = functions.filter(f => f.is_dead_code).length;
       const totalCalls = graphData.total_calls || 0;
       const grade      = computeGrade(issueCount, fnCount);
+      const stabilityScore = summary.stability_score ?? null;
 
-      setMetrics({ functions, symbols, issues, fnCount, varCount, issueCount, recCount, deadCount, totalCalls, grade });
+      setMetrics({ functions, symbols, issues, fnCount, varCount, issueCount, recCount, deadCount, totalCalls, grade, stabilityScore });
     } catch (err) {
       console.error('Dashboard fetch error', err);
     } finally {
@@ -209,16 +211,17 @@ export default function Dashboard() {
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
-  const grade     = metrics?.grade ?? '…';
-  const gradeS    = gradeStatus(grade);
-  const fnCount   = metrics?.fnCount   ?? 0;
-  const varCount  = metrics?.varCount  ?? 0;
-  const issCount  = metrics?.issueCount ?? 0;
-  const recCount  = metrics?.recCount   ?? 0;
-  const deadCount = metrics?.deadCount  ?? 0;
-  const totalCall = metrics?.totalCalls ?? 0;
-  const symTotal  = metrics?.symbols?.length ?? 0;
-  const issues    = metrics?.issues ?? [];
+  const grade          = metrics?.grade ?? '…';
+  const gradeS         = gradeStatus(grade);
+  const fnCount        = metrics?.fnCount        ?? 0;
+  const varCount       = metrics?.varCount       ?? 0;
+  const issCount       = metrics?.issueCount     ?? 0;
+  const recCount       = metrics?.recCount       ?? 0;
+  const deadCount      = metrics?.deadCount      ?? 0;
+  const totalCall      = metrics?.totalCalls     ?? 0;
+  const symTotal       = metrics?.symbols?.length ?? 0;
+  const issues         = metrics?.issues         ?? [];
+  const stabilityScore = metrics?.stabilityScore  ?? null;
 
   // Issue-type distribution for mini bar chart
   const issueDist = {
@@ -400,11 +403,12 @@ export default function Dashboard() {
             <div className="dash-sysinfo-header">Compiler ENV</div>
             <div className="dash-sysinfo-list">
               {[
-                { icon: '⊞', key: 'Total Symbols',   val: symTotal },
-                { icon: 'ƒ', key: 'Function Calls',  val: totalCall },
-                { icon: '↺', key: 'Recursion Count', val: recCount },
-                { icon: '⬡', key: 'Source Files',    val: '1 C File' },
-                { icon: '⚙', key: 'Analyzer',        val: 'CodeMaster v1.0' },
+                { icon: '⊞', key: 'Total Symbols',    val: symTotal },
+                { icon: 'ƒ', key: 'Function Calls',   val: totalCall },
+                { icon: '↺', key: 'Recursion Count',  val: recCount },
+                { icon: '⬡', key: 'Source Files',     val: '1 C File' },
+                { icon: '⚙', key: 'Analyzer',         val: 'CodeMaster v1.0' },
+                { icon: '◎', key: 'Stability Score',  val: stabilityScore !== null ? `${stabilityScore}%` : 'N/A' },
               ].map(({ icon, key, val }) => (
                 <div key={key} className="dash-sysinfo-row">
                   <div className="dash-sysinfo-icon">{icon}</div>

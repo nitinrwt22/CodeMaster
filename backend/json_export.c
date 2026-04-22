@@ -60,6 +60,8 @@ static const char* issue_type_str(IssueType t) {
         case ISSUE_HIGH_FANOUT:     return "high_fanout";
         case ISSUE_TOO_MANY_PARAMS: return "too_many_parameters";
         case ISSUE_HIGH_COMPLEXITY: return "high_complexity";
+        case ISSUE_DEAD_CODE:       return "dead_code";
+        case ISSUE_RECURSIVE:       return "recursive_function";
         default:                    return "unknown";
     }
 }
@@ -337,12 +339,29 @@ void export_issues_json(FunctionGraph* graph, ASTNode* ast, const char* filename
                             issue.type = ISSUE_HIGH_FANOUT;
                             issue.severity = 3;
                             issue.line = node->lineNumber;
+                            strncpy(issue.title,         "High Fan-out", sizeof(issue.title) - 1);
                             strncpy(issue.function_name, fn, MAX_NAME - 1);
                             snprintf(issue.description, 255,
-                                     "Function '%s' has high fan-out (%d calls > 5)", fn, gn->out_degree);
+                                     "Function '%s' calls %d distinct functions (threshold: 5). "
+                                     "High fan-out increases coupling risk.", fn, gn->out_degree);
                             pq_push(pq, issue);
                         }
                     }
+                }
+
+                /* High Complexity */
+                int complexity = calculateComplexity(node);
+                if (complexity > 5) {
+                    QualityIssue issue = {0};
+                    issue.type = ISSUE_HIGH_COMPLEXITY;
+                    issue.severity = 3;
+                    issue.line = node->lineNumber;
+                    strncpy(issue.title,         "High Complexity", sizeof(issue.title) - 1);
+                    strncpy(issue.function_name, fn, MAX_NAME - 1);
+                    snprintf(issue.description, 255,
+                             "Function '%s' has cyclomatic complexity %d (threshold: 5). "
+                             "High complexity increases bug probability.", fn, complexity);
+                    pq_push(pq, issue);
                 }
 
                 /* Unused Variables via DFA */
@@ -354,11 +373,16 @@ void export_issues_json(FunctionGraph* graph, ASTNode* ast, const char* filename
                         issue.type = ISSUE_UNUSED_VAR;
                         issue.severity = 5;
                         issue.line = dfa.vars[di].declaredLine;
+                        strncpy(issue.title,         "Unused Variable", sizeof(issue.title) - 1);
                         strncpy(issue.function_name, fn, MAX_NAME - 1);
                         if (dfa.vars[di].writeCount == 0)
-                            snprintf(issue.description, 255, "Variable '%s' declared but never used", dfa.vars[di].name);
+                            snprintf(issue.description, 255,
+                                "Variable '%s' declared but never used. "
+                                "Remove or use it to avoid dead allocation.", dfa.vars[di].name);
                         else
-                            snprintf(issue.description, 255, "Variable '%s' declared and assigned but never read", dfa.vars[di].name);
+                            snprintf(issue.description, 255,
+                                "Variable '%s' declared and assigned but never read. "
+                                "The assignment has no observable effect.", dfa.vars[di].name);
                         pq_push(pq, issue);
                     }
                 }
@@ -372,28 +396,39 @@ void export_issues_json(FunctionGraph* graph, ASTNode* ast, const char* filename
         }
     }
 
-    /* ---- Recursion issues from graph ---- */
+    /* ---- Recursion / dead-code issues from graph ---- */
     if (graph) {
         for (int i = 0; i < graph->node_count; i++) {
             GraphNode* gn = &graph->nodes[i];
+            char desc[256];
+
             if (gn->is_recursive) {
                 QualityIssue issue = {0};
-                issue.type = ISSUE_HIGH_COMPLEXITY;
+                issue.type     = ISSUE_RECURSIVE;
                 issue.severity = 3;
-                issue.line = gn->line_number;
-                strncpy(issue.function_name, gn->function_name, MAX_NAME - 1);
-                snprintf(issue.description, 255,
-                         "Recursive function detected: '%s'", gn->function_name);
+                issue.line     = gn->line_number;
+                strncpy(issue.title,         "Recursive Function",  sizeof(issue.title) - 1);
+                strncpy(issue.function_name, gn->function_name,     MAX_NAME - 1);
+                snprintf(desc, sizeof(desc),
+                    "Function '%s' calls itself recursively. "
+                    "Ensure a proper base case to prevent stack overflow.",
+                    gn->function_name);
+                strncpy(issue.description, desc, sizeof(issue.description) - 1);
                 pq_push(pq, issue);
             }
+
             if (gn->is_dead_code) {
                 QualityIssue issue = {0};
-                issue.type = ISSUE_HIGH_COMPLEXITY;
+                issue.type     = ISSUE_DEAD_CODE;
                 issue.severity = 2;
-                issue.line = gn->line_number;
+                issue.line     = gn->line_number;
+                strncpy(issue.title,         "Dead Code",        sizeof(issue.title) - 1);
                 strncpy(issue.function_name, gn->function_name, MAX_NAME - 1);
-                snprintf(issue.description, 255,
-                         "Dead code: function '%s' is never called", gn->function_name);
+                snprintf(desc, sizeof(desc),
+                    "Function '%s' is defined but never called. "
+                    "Remove or add an explicit entry point.",
+                    gn->function_name);
+                strncpy(issue.description, desc, sizeof(issue.description) - 1);
                 pq_push(pq, issue);
             }
         }
@@ -408,7 +443,30 @@ void export_issues_json(FunctionGraph* graph, ASTNode* ast, const char* filename
 
     pq_destroy(pq);
 
+    /* Count by severity for summary */
+    int n_critical = 0, n_high = 0, n_medium = 0, n_low = 0;
+    for (int i = 0; i < total; i++) {
+        int s = buffer[i].severity;
+        if      (s == 5) n_critical++;
+        else if (s == 4) n_high++;
+        else if (s == 3) n_medium++;
+        else             n_low++;
+    }
+    int raw_score = 100 - (n_critical * 10 + n_high * 5 + n_medium * 2 + n_low * 1);
+    if (raw_score < 0) raw_score = 0;
+
     fprintf(f, "{\n");
+
+    /* Summary block */
+    fprintf(f, "  \"summary\": {\n");
+    fprintf(f, "    \"total_issues\": %d,\n", total);
+    fprintf(f, "    \"critical\": %d,\n", n_critical);
+    fprintf(f, "    \"high\": %d,\n",     n_high);
+    fprintf(f, "    \"medium\": %d,\n",   n_medium);
+    fprintf(f, "    \"low\": %d,\n",      n_low);
+    fprintf(f, "    \"stability_score\": %d\n", raw_score);
+    fprintf(f, "  },\n");
+
     fprintf(f, "  \"issues\": [\n");
 
     for (int i = 0; i < total; i++) {
@@ -417,7 +475,8 @@ void export_issues_json(FunctionGraph* graph, ASTNode* ast, const char* filename
         fprintf(f, "    {\n");
         fprintf(f, "      \"severity\": %d,\n", iss->severity);
         fprintf(f, "      \"severity_label\": "); write_json_string(f, severity_label(iss->severity)); fprintf(f, ",\n");
-        fprintf(f, "      \"type\": "); write_json_string(f, issue_type_str(iss->type)); fprintf(f, ",\n");
+        fprintf(f, "      \"type\": ");  write_json_string(f, issue_type_str(iss->type));  fprintf(f, ",\n");
+        fprintf(f, "      \"title\": "); write_json_string(f, iss->title[0] ? iss->title : issue_type_str(iss->type)); fprintf(f, ",\n");
         fprintf(f, "      \"function\": "); write_json_string(f, iss->function_name); fprintf(f, ",\n");
         fprintf(f, "      \"line\": %d,\n", iss->line);
         fprintf(f, "      \"message\": "); write_json_string(f, iss->description); fprintf(f, "\n");

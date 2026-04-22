@@ -10,13 +10,16 @@ typedef enum {
     ISSUE_LARGE_FUNC,
     ISSUE_HIGH_FANOUT,
     ISSUE_TOO_MANY_PARAMS,
-    ISSUE_HIGH_COMPLEXITY
+    ISSUE_HIGH_COMPLEXITY,
+    ISSUE_DEAD_CODE,
+    ISSUE_RECURSIVE
 } IssueType;
 
 typedef struct {
     IssueType type;
-    int severity;       // 1-5
-    char description[256];
+    int severity;           // 1-5
+    char title[100];        // Short human-readable title
+    char description[256];  // Full detail message
     int line;
     char function_name[MAX_NAME];
 } QualityIssue;
@@ -34,7 +37,8 @@ void pq_push(PriorityQueue* pq, QualityIssue issue);
 QualityIssue pq_pop(PriorityQueue* pq);
 int pq_is_empty(PriorityQueue* pq);
 
-// Analysis operations
+// Analysis + report
+void analyze_node_quality(ASTNode* node, FunctionGraph* graph, PriorityQueue* pq);
 void generate_ranked_report(ASTNode* root, FunctionGraph* graph);
 
 #endif // QUALITY_ANALYZER_H
