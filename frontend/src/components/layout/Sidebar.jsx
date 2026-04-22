@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, ListTree, Activity, Bug, Binary } from 'lucide-react';
+import logo from '../../assets/logo.png';
 import './Sidebar.css';
 
 const navItems = [
@@ -14,8 +15,7 @@ export default function Sidebar() {
   return (
     <aside className="sidebar glass-panel">
       <div className="sidebar-brand">
-        <div className="brand-logo glow-primary" />
-        <h2>CodeMaster</h2>
+        <img src={logo} alt="CodeMaster Logo" className="brand-logo-img" />
       </div>
       <nav className="sidebar-nav">
         {navItems.map((item) => (
