@@ -2,11 +2,11 @@
 <div align="center">
 
 ```
-   ______          __     __  ___           __
-  / ____/___  ____/ /__  /  |/  /___ ______/ /____  _____
- / /   / __ \/ __  / _ \/ /|_/ / __ `/ ___/ __/ _ \/ ___/
-/ /___/ /_/ / /_/ /  __/ /  / / /_/ (__  ) /_/  __/ /
-\____/\____/\__,_/\___/_/  /_/\__,_/____/\__/\___/_/
+  ____          _      __  __           _            
+ / ___|___   __| | ___|  \/  | __ _ ___| |_ ___ _ __ 
+| |   / _ \ / _` |/ _ \ |\/| |/ _` / __| __/ _ \ '__|
+| |__| (_) | (_| |  __/ |  | | (_| \__ \ ||  __/ |   
+ \____\___/ \__,_|\___|_|  |_|\__,_|___/\__\___|_|   
 ```
 
 ### ⚡ A high-performance C static analysis engine with a full-stack interactive visualization dashboard
@@ -167,7 +167,7 @@
                             │  HTTP (Vite dev proxy)
                             ▼
                    ┌──────────────────────────────────────┐
-                   │         React Frontend                │
+                   │         React Frontend               │
                    │                                      │
                    │  ┌──────────┐  ┌───────────────────┐ │
                    │  │Dashboard │  │  AST Viewer       │ │
@@ -437,36 +437,24 @@ CodeMaster/
 | 🧪 **Test Coverage Analysis** | Map test files against analyzed functions for coverage insight |
 | 🌐 **Online Playground** | Browser-based C code editor with instant analysis — no install needed |
 
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. **Fork** the repository
-2. Create a new branch: `git checkout -b feature/your-feature-name`
-3. Make your changes with clear, descriptive commits
-4. Ensure the backend still compiles cleanly: `make clean && make`
-5. Open a **Pull Request** with a description of what you changed and why
-
-### Areas to contribute:
-- New issue detectors in `quality_analyzer.c`
-- Additional AST node types in `ast.c` / `parser.c`
-- New frontend visualization panels
-- Improved DOT → SVG rendering in the React dashboard
 
 ---
 
-## 📄 License
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
-
----
+## 👤 Author
 
 <div align="center">
 
-**Built with 🖤 in C and React**
+Made with 🖤 by **Nitin Rawat**
 
-*CodeMaster — Because real engineers understand what happens below the abstraction.*
+*Designed, architected, and built from scratch — C engine to React dashboard.*
+
+[![GitHub](https://img.shields.io/badge/GitHub-nitinrwt22-181717?style=for-the-badge&logo=github)](https://github.com/nitinrwt22)
+
+---
+
+**CodeMaster** © 2025 Nitin Rawat — All rights reserved.
+
+*Because real engineers understand what happens below the abstraction.*
 
 </div>
+
