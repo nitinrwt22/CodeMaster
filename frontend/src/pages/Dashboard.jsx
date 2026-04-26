@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { getSymbols, getIssues, getGraph, getAST, analyzeCode } from '../services/api';
-import { UploadCloud, FileType, CheckCircle, AlertCircle, Share2 } from 'lucide-react';
+import { useState, useCallback, useEffect } from 'react';
+import { getSymbols, getIssues, getGraph } from '../services/api';
+import { Share2 } from 'lucide-react';
 import './Dashboard.css';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -119,62 +119,9 @@ function InsightItem({ issue, index }) {
   );
 }
 
-// ── Compact Upload Strip ──────────────────────────────────────────────────────
-function UploadStrip({ onDone }) {
-  const [isDragging, setIsDragging] = useState(false);
-  const [status, setStatus] = useState('idle');
-  const fileRef = useRef(null);
-
-  const handleFile = async (file) => {
-    if (!file) return;
-    setStatus('loading');
-    try {
-      const text = await file.text();
-      await analyzeCode(text);
-      setStatus('success');
-      onDone?.();
-      setTimeout(() => setStatus('idle'), 3000);
-    } catch {
-      setStatus('error');
-      setTimeout(() => setStatus('idle'), 3000);
-    }
-  };
-
-  const icon = status === 'loading' ? <FileType size={18} />
-             : status === 'success' ? <CheckCircle size={18} style={{ color: 'var(--color-secondary)' }} />
-             : status === 'error'   ? <AlertCircle size={18} style={{ color: 'var(--color-error)' }} />
-             : <UploadCloud size={18} />;
-
-  const headingMap = { idle: 'Upload Source File', loading: 'Analyzing…', success: 'Analysis Complete', error: 'Analysis Failed' };
-  const subMap     = { idle: 'Drag & drop a .c / .cpp file or click to browse', loading: 'Running CodeMaster pipeline…', success: 'Dashboard refreshed.', error: 'Error processing file.' };
-
-  return (
-    <div
-      className={`dash-upload-strip ${isDragging ? 'dragging' : ''}`}
-      onClick={() => fileRef.current?.click()}
-      onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
-      onDragLeave={() => setIsDragging(false)}
-      onDrop={(e) => { e.preventDefault(); setIsDragging(false); handleFile(e.dataTransfer.files[0]); }}
-    >
-      <input type="file" accept=".c,.cpp,.h" ref={fileRef} style={{ display: 'none' }}
-        onChange={(e) => handleFile(e.target.files[0])} />
-
-      <div className="dash-upload-icon">{icon}</div>
-      <div className="dash-upload-text">
-        <h4>{headingMap[status]}</h4>
-        <p>{subMap[status]}</p>
-      </div>
-
-      {status !== 'idle' && (
-        <span className={`dash-upload-status dash-upload-status--${status}`}>
-          {status === 'loading' ? 'Processing…' : status === 'success' ? '✓ Done' : '✗ Failed'}
-        </span>
-      )}
-    </div>
-  );
-}
 
 // ── Main Dashboard ────────────────────────────────────────────────────────────
+
 export default function Dashboard() {
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -207,8 +154,10 @@ export default function Dashboard() {
       };
       const computedScore = Math.max(0, 100 - (issueDistLocal.critical * 10 + issueDistLocal.high * 5 + issueDistLocal.medium * 2 + issueDistLocal.low * 1));
       const stabilityScore = summary.stability_score ?? computedScore;
+      // hasData is true only when actual code has been analyzed (at least 1 symbol or function)
+      const hasData = fnCount > 0 || symbols.length > 0;
 
-      setMetrics({ functions, symbols, issues, fnCount, varCount, issueCount, recCount, deadCount, totalCalls, grade, stabilityScore });
+      setMetrics({ functions, symbols, issues, fnCount, varCount, issueCount, recCount, deadCount, totalCalls, grade, stabilityScore, hasData });
     } catch (err) {
       console.error('Dashboard fetch error', err);
     } finally {
@@ -262,6 +211,7 @@ ${metrics.issues.length === 0 ? '- No issues detected. Code is clean.' : metrics
 
   const grade          = metrics?.grade ?? '…';
   const gradeS         = gradeStatus(grade);
+  const hasData        = metrics?.hasData        ?? false;
   const fnCount        = metrics?.fnCount        ?? 0;
   const varCount       = metrics?.varCount       ?? 0;
   const issCount       = metrics?.issueCount     ?? 0;
@@ -271,6 +221,9 @@ ${metrics.issues.length === 0 ? '- No issues detected. Code is clean.' : metrics
   const symTotal       = metrics?.symbols?.length ?? 0;
   const issues         = metrics?.issues         ?? [];
   const stabilityScore = metrics?.stabilityScore  ?? null;
+
+  // Helper: show value only if data exists
+  const show = (val) => loading ? '…' : hasData ? val : '—';
 
   // Issue-type distribution for mini bar chart
   const issueDist = {
@@ -312,29 +265,29 @@ ${metrics.issues.length === 0 ? '- No issues detected. Code is clean.' : metrics
         <DashMetricCard
           icon="ƒ"
           title="Total Functions"
-          value={loading ? '…' : fnCount}
-          status="stable"
+          value={show(fnCount)}
+          status={hasData ? 'stable' : 'info'}
           colorClass="primary"
         />
         <DashMetricCard
           icon="[ ]"
           title="Total Variables"
-          value={loading ? '…' : varCount}
-          status="stable"
+          value={show(varCount)}
+          status={hasData ? 'stable' : 'info'}
           colorClass="secondary"
         />
         <DashMetricCard
           icon="⊕"
           title="Complexity Score"
-          value={loading ? '…' : grade}
-          status={gradeS}
+          value={loading ? '…' : hasData ? grade : '—'}
+          status={hasData ? gradeS : 'info'}
           colorClass="warning"
         />
         <DashMetricCard
           icon="⚑"
           title="Detected Issues"
-          value={loading ? '…' : issCount}
-          status={issCount > 4 ? 'critical' : issCount > 1 ? 'warning' : 'stable'}
+          value={show(issCount)}
+          status={hasData ? (issCount > 4 ? 'critical' : issCount > 1 ? 'warning' : 'stable') : 'info'}
           colorClass="danger"
         />
       </div>
@@ -457,12 +410,12 @@ ${metrics.issues.length === 0 ? '- No issues detected. Code is clean.' : metrics
             <div className="dash-sysinfo-header">Compiler ENV</div>
             <div className="dash-sysinfo-list">
               {[
-                { icon: '⊞', key: 'Total Symbols',    val: symTotal },
-                { icon: 'ƒ', key: 'Function Calls',   val: totalCall },
-                { icon: '↺', key: 'Recursion Count',  val: recCount },
-                { icon: '⬡', key: 'Source Files',     val: '1 C File' },
+                { icon: '⊞', key: 'Total Symbols',    val: hasData ? symTotal : '—' },
+                { icon: 'ƒ', key: 'Function Calls',   val: hasData ? totalCall : '—' },
+                { icon: '↺', key: 'Recursion Count',  val: hasData ? recCount : '—' },
+                { icon: '⬡', key: 'Source Files',     val: hasData ? '1 C File' : '—' },
                 { icon: '⚙', key: 'Analyzer',         val: 'CodeMaster v1.0' },
-                { icon: '◎', key: 'Stability Score',  val: stabilityScore !== null ? `${stabilityScore}%` : 'N/A' },
+                { icon: '◎', key: 'Stability Score',  val: hasData ? (stabilityScore !== null ? `${stabilityScore}%` : 'N/A') : '—' },
               ].map(({ icon, key, val }) => (
                 <div key={key} className="dash-sysinfo-row">
                   <div className="dash-sysinfo-icon">{icon}</div>
@@ -477,9 +430,6 @@ ${metrics.issues.length === 0 ? '- No issues detected. Code is clean.' : metrics
 
         </div>
       </div>
-
-      {/* ── Upload Strip ── */}
-      <UploadStrip onDone={fetchAll} />
 
     </div>
   );

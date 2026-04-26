@@ -5,6 +5,7 @@ import SymbolExplorer from './pages/SymbolExplorer';
 import FunctionGraph from './pages/FunctionGraph';
 import ASTViewer from './pages/ASTViewer';
 import IssuesReport from './pages/IssuesReport';
+import Analyze from './pages/Analyze';
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
           <Route path="graph" element={<FunctionGraph />} />
           <Route path="ast" element={<ASTViewer />} />
           <Route path="issues" element={<IssuesReport />} />
+          <Route path="analyze" element={<Analyze />} />
         </Route>
       </Routes>
     </BrowserRouter>

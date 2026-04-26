@@ -1,14 +1,15 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, ListTree, Activity, Bug, Binary } from 'lucide-react';
+import { LayoutDashboard, ListTree, Activity, Bug, Binary, Code2 } from 'lucide-react';
 import logo from '../../assets/logo.png';
 import './Sidebar.css';
 
 const navItems = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/',        label: 'Dashboard',      icon: LayoutDashboard },
+  { path: '/analyze', label: 'Analyze Code',   icon: Code2 },
   { path: '/symbols', label: 'Symbol Explorer', icon: Binary },
-  { path: '/graph', label: 'Functions Graph', icon: Activity },
-  { path: '/ast', label: 'AST Viewer', icon: ListTree },
-  { path: '/issues', label: 'Issues Report', icon: Bug },
+  { path: '/graph',   label: 'Functions Graph', icon: Activity },
+  { path: '/ast',     label: 'AST Viewer',      icon: ListTree },
+  { path: '/issues',  label: 'Issues Report',   icon: Bug },
 ];
 
 export default function Sidebar() {

@@ -41,6 +41,7 @@ const SEVERITY_GROUPS = [
 
 // ── Summary Card ───────────────────────────────────────────────────────────
 function SummaryCard({ summary, counts }) {
+  const hasData = counts.all > 0 || (summary && summary.stability_score !== undefined);
   const computedScore = Math.max(0, 100 - (counts.critical * 10 + counts.high * 5 + counts.medium * 2 + counts.low * 1));
   const score = summary?.stability_score ?? computedScore;
   const scoreColor =
@@ -110,8 +111,10 @@ function SummaryCard({ summary, counts }) {
             />
           </svg>
           <div className="ir-score-inner">
-            <span className="ir-score-num">{score}</span>
-            <span className="ir-score-pct">%</span>
+            {hasData
+              ? <><span className="ir-score-num">{score}</span><span className="ir-score-pct">%</span></>
+              : <span className="ir-score-num" style={{ fontSize: '1.5rem' }}>—</span>
+            }
           </div>
         </div>
         <div className="ir-score-label">Stability Score</div>
