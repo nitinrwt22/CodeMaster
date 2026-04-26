@@ -211,6 +211,48 @@ export default function Dashboard() {
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
+  const handleExport = useCallback(() => {
+    if (!metrics) return;
+
+    const reportMarkdown = `# CodeMaster Analysis Report
+**Generated:** ${new Date().toLocaleString()}
+
+## System Overview
+- **Analyzer:** CodeMaster v1.0
+- **Overall Complexity Grade:** ${metrics.grade}
+- **Stability Score:** ${metrics.stabilityScore !== null ? metrics.stabilityScore + '%' : 'N/A'}
+
+## Metrics Summary
+- **Total Functions:** ${metrics.fnCount}
+- **Total Variables:** ${metrics.varCount}
+- **Total Issues:** ${metrics.issueCount}
+- **Function Calls:** ${metrics.totalCalls}
+- **Dead Code Functions:** ${metrics.deadCount}
+- **Recursive Functions:** ${metrics.recCount}
+
+## Detected Insights
+${metrics.issues.length === 0 ? '- No issues detected. Code is clean.' : metrics.issues.map(i => `- **[${i.severity_label?.toUpperCase() || 'INFO'}]** ${i.message} (Line ${i.line})${i.function ? ` in \`${i.function}\`` : ''}`).join('\n')}
+`;
+
+    const blob = new Blob([reportMarkdown], { type: 'text/markdown;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `codemaster-report-${new Date().toISOString().split('T')[0]}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(reportMarkdown).then(() => {
+        alert('Report downloaded and copied to clipboard for easy sharing!');
+      }).catch(err => console.error('Failed to copy', err));
+    } else {
+      alert('Report downloaded successfully!');
+    }
+  }, [metrics]);
+
   const grade          = metrics?.grade ?? '…';
   const gradeS         = gradeStatus(grade);
   const fnCount        = metrics?.fnCount        ?? 0;
@@ -247,7 +289,12 @@ export default function Dashboard() {
           <h1 className="dash-title">Static Analysis <span>Engine</span></h1>
         </div>
         <div className="dash-header-actions">
-          <button className="dash-export-btn">
+          <button 
+            className="dash-export-btn" 
+            onClick={handleExport} 
+            disabled={loading || !metrics}
+            style={{ opacity: (loading || !metrics) ? 0.5 : 1, cursor: (loading || !metrics) ? 'not-allowed' : 'pointer' }}
+          >
             <Share2 size={13} /> Export
           </button>
         </div>
