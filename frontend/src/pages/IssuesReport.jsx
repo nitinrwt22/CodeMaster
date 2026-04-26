@@ -40,8 +40,9 @@ const SEVERITY_GROUPS = [
 ];
 
 // ── Summary Card ───────────────────────────────────────────────────────────
-function SummaryCard({ summary, total }) {
-  const score = summary?.stability_score ?? 100;
+function SummaryCard({ summary, counts }) {
+  const computedScore = Math.max(0, 100 - (counts.critical * 10 + counts.high * 5 + counts.medium * 2 + counts.low * 1));
+  const score = summary?.stability_score ?? computedScore;
   const scoreColor =
     score >= 80 ? 'score--good' :
     score >= 50 ? 'score--warn' :
@@ -69,23 +70,23 @@ function SummaryCard({ summary, total }) {
 
         <div className="ir-summary-counts">
           <div className="ir-count-item ir-count--total">
-            <span className="ir-count-num">{total}</span>
+            <span className="ir-count-num">{counts.all}</span>
             <span className="ir-count-label">Total Issues</span>
           </div>
           <div className="ir-count-item ir-count--critical">
-            <span className="ir-count-num">{summary?.critical ?? 0}</span>
+            <span className="ir-count-num">{counts.critical}</span>
             <span className="ir-count-label">Critical</span>
           </div>
           <div className="ir-count-item ir-count--high">
-            <span className="ir-count-num">{summary?.high ?? 0}</span>
+            <span className="ir-count-num">{counts.high}</span>
             <span className="ir-count-label">High</span>
           </div>
           <div className="ir-count-item ir-count--medium">
-            <span className="ir-count-num">{summary?.medium ?? 0}</span>
+            <span className="ir-count-num">{counts.medium}</span>
             <span className="ir-count-label">Medium</span>
           </div>
           <div className="ir-count-item ir-count--low">
-            <span className="ir-count-num">{summary?.low ?? 0}</span>
+            <span className="ir-count-num">{counts.low}</span>
             <span className="ir-count-label">Low</span>
           </div>
         </div>
@@ -214,7 +215,7 @@ export default function IssuesReport() {
   return (
     <div className="issues-report">
       {/* Summary Banner */}
-      <SummaryCard summary={summary} total={issues.length} />
+      <SummaryCard summary={summary} counts={counts} />
 
       {/* Filter Bar */}
       <FilterBar active={filter} onChange={setFilter} counts={counts} />

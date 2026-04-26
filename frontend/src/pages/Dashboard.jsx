@@ -199,7 +199,14 @@ export default function Dashboard() {
       const deadCount  = functions.filter(f => f.is_dead_code).length;
       const totalCalls = graphData.total_calls || 0;
       const grade      = computeGrade(issueCount, fnCount);
-      const stabilityScore = summary.stability_score ?? null;
+      const issueDistLocal = {
+        critical: issues.filter(i => i.severity_label === 'critical').length,
+        high:     issues.filter(i => i.severity_label === 'high').length,
+        medium:   issues.filter(i => i.severity_label === 'medium').length,
+        low:      issues.filter(i => i.severity_label === 'low').length,
+      };
+      const computedScore = Math.max(0, 100 - (issueDistLocal.critical * 10 + issueDistLocal.high * 5 + issueDistLocal.medium * 2 + issueDistLocal.low * 1));
+      const stabilityScore = summary.stability_score ?? computedScore;
 
       setMetrics({ functions, symbols, issues, fnCount, varCount, issueCount, recCount, deadCount, totalCalls, grade, stabilityScore });
     } catch (err) {
