@@ -8,11 +8,11 @@ obj/
 # OS metadata
 .DS_Store
 
-# Outputs — suppress binary exports but keep JSON for frontend
+# Output files — not tracked (generated at runtime)
 output/*.dot
 output/*.csv
+output/*.json
 !output/.gitkeep
-!output/*.json
 
 # Documents
 *.pages
@@ -20,3 +20,6 @@ output/*.csv
 # Local scratch/test artifacts
 *.bin
 testfiles/*.o
+
+# Analysis input file (generated at runtime by the analyzer)
+target_input.c
