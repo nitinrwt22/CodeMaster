@@ -1,345 +1,388 @@
 
 <div align="center">
 
-[![header](https://capsule-render.vercel.app/api?type=waving&color=0:0f2027,50:203a43,100:2c5364&height=220&section=header&text=CodeMaster&fontSize=90&fontColor=ffffff&fontAlignY=42&desc=C%20Code%20Analyzer%20%26%20Symbol%20Browser&descFontSize=20&descFontColor=a0c4ff&descAlignY=68&animation=fadeIn)](https://github.com/nitinrwt22/codemaster)
+```
+   ██████╗ ██████╗ ██████╗ ███████╗███╗   ███╗ █████╗ ███████╗████████╗███████╗██████╗
+  ██╔════╝██╔═══██╗██╔══██╗██╔════╝████╗ ████║██╔══██╗██╔════╝╚══██╔══╝██╔════╝██╔══██╗
+  ██║     ██║   ██║██║  ██║█████╗  ██╔████╔██║███████║███████╗   ██║   █████╗  ██████╔╝
+  ██║     ██║   ██║██║  ██║██╔══╝  ██║╚██╔╝██║██╔══██║╚════██║   ██║   ██╔══╝  ██╔══██╗
+  ╚██████╗╚██████╔╝██████╔╝███████╗██║ ╚═╝ ██║██║  ██║███████║   ██║   ███████╗██║  ██║
+   ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝╚═╝     ╚═╝╚═╝  ╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
+```
 
-### *Because Your Code Deserves More Than a Linter.*
+### ⚡ A high-performance C static analysis engine with a full-stack interactive visualization dashboard
+
+[![Language](https://img.shields.io/badge/Engine-C99-blue?style=for-the-badge&logo=c)](https://en.wikipedia.org/wiki/C_(programming_language))
+[![Frontend](https://img.shields.io/badge/Frontend-React%2019-61dafb?style=for-the-badge&logo=react)](https://react.dev/)
+[![Build](https://img.shields.io/badge/Build-GCC%20%2B%20Makefile-orange?style=for-the-badge&logo=gnu)](https://www.gnu.org/software/make/)
+[![Bundler](https://img.shields.io/badge/Bundler-Vite%208-646cff?style=for-the-badge&logo=vite)](https://vitejs.dev/)
+[![Router](https://img.shields.io/badge/Router-React%20Router%20v7-ca4245?style=for-the-badge&logo=reactrouter)](https://reactrouter.com/)
+[![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge)]()
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
 </div>
 
-**A high-performance, full-stack static analysis engine built in pure C, with a React visualization frontend.**  
-Parse → Analyze → Visualize — in under 30ms.
-
 ---
 
-![Language](https://img.shields.io/badge/Backend-C%20(GCC)-blue?style=for-the-badge&logo=c)
-![Frontend](https://img.shields.io/badge/Frontend-React%2019%20%2B%20Vite-61DAFB?style=for-the-badge&logo=react)
-![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
-![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux-lightgrey?style=for-the-badge&logo=apple)
+## 🧠 What is CodeMaster?
 
----
+**CodeMaster** is a full-stack static analysis platform that processes C source code at the **compiler level** — tokenizing, parsing, constructing an Abstract Syntax Tree, mapping the function call graph, running Data Flow Analysis, and detecting ranked code quality issues — then streams all results as structured JSON into a **live React dashboard**.
 
-## 📖 Table of Contents
+> It's not a linter. It's not a wrapper around LLVM or libclang. It is a complete **compiler front-end** built from scratch in pure C, with hand-implemented data structures and a modern visualization layer — two completely different technology stacks unified into one tool.
 
-- [✨ Features](#-features)
-- [🧱 Tech Stack](#-tech-stack)
-- [🏗️ System Architecture](#%EF%B8%8F-system-architecture)
-- [🔄 System Flowchart](#-system-flowchart)
-- [💎 Why CodeMaster is Unique](#-why-codemaster-is-unique)
-- [⚖️ Comparison with Existing Tools](#%EF%B8%8F-comparison-with-existing-tools)
-- [🎯 Use Cases](#-use-cases)
-- [🚀 Installation & Setup](#-installation--setup)
-- [📁 Project Structure](#-project-structure)
-- [📸 Screenshots](#-screenshots)
-- [🔭 Future Improvements](#-future-improvements)
-- [👨‍💻 Author](#-author)
+**Real numbers from a live analysis run:**
+- 🔢 **29 functions** tracked across a single source file
+- 🔗 **65 call edges** mapped in the function call graph  
+- 🔄 **7 recursive functions** detected automatically (factorial, fibonacci, recursive_search, …)
+- ⚠️ Issues surfaced across **8 distinct code smell categories** — severity-ranked by a max-heap priority queue
+- ⚡ Analysis completes in **< 30ms** on a typical laptop — O(log N) symbol retrieval via AVL Tree
 
 ---
 
 ## ✨ Features
 
 ### 🔍 Symbol Analysis
-- **Hash Table–backed symbol table** with O(1) average lookups across functions, variables, loops, and conditions
-- **Prefix autocomplete** via Trie — instant symbol search as-you-type
-- **AVL Tree sorted view** — alphabetical traversal with balance stats
-- **Category & type filtering** — query by `function`, `variable`, `loop`, `condition`, data type, or line range
-- **CSV export** for full symbol table snapshots
+- **O(1) average symbol lookup** via a hash table with chaining collision resolution (size 1031)
+- **Trie-based prefix autocomplete** — retrieve all symbols starting with a given string in O(L) time
+- Filter symbols by **category** (`function`, `variable`, `loop`, `condition`) or **data type** (`int`, `float`, `char`, `void`, …)
+- **Line-range queries** — pull every symbol declared between any two source lines
+- **O(log N) sorted view** of all symbols using a self-balancing AVL Tree
+- Export full symbol table to **CSV** for external processing
 
-### 🌲 AST Analysis
-- **Full recursive Abstract Syntax Tree** built from a hand-written C parser with depth-limited traversal
-- **Complexity metrics** — cyclomatic complexity, nesting depth, node count per scope
-- **Dual-mode display** — compact tree view and detailed structured printout
-- **Control Flow Graph (CFG)** extraction from AST, exported to `.dot` format
+### 🌳 AST Analysis
+- Complete **Abstract Syntax Tree** constructed via recursive-descent parsing — functions, declarations, control flow (`if`, `for`, `while`, `return`), expressions, and blocks
+- Per-function **cyclomatic complexity** and **maximum nesting depth** calculation
+- **Data Flow Analysis (DFA)** — tracks read and write counts per variable, flags unread writes and completely unused declarations
+- Node-level metadata: type, identifier value, data type, line number, parent/children links
 
-### 📈 Function Call Graph
-- **Directed adjacency-list graph** with up to 200 function nodes and 65+ tracked edges
-- **DFS + BFS traversal** for hierarchy walking and call-chain discovery
-- **Recursion detection** — identifies and flags 7+ recursive patterns (factorial, fibonacci, etc.)
-- **Dead code detection** — isolates unreachable functions
-- **High-coupling detection** — flags functions with fanout > 5
-- **DOT + CSV export** for external visualization tools
+### 📊 Function Call Graph
+- Directed **adjacency-list graph** supporting up to 200 nodes and 65+ edges per analysis run
+- **DFS-based cycle detection** — identifies recursive patterns (e.g., `factorial`, `fibonacci`, `recursive_search`)
+- **Dead code detection** — flags functions defined but never reachable from any call path
+- Computes **in-degree and out-degree** per node; ranks functions by coupling and popularity
+- Detects **highly-coupled functions** (configurable out-degree threshold)
+- Exports to **DOT format** (`output/function_graph.dot`) and **CSV** for Graphviz or external rendering
+
+### 🔄 Control Flow Graph (CFG)
+- Derives a **Control Flow Graph** from the AST, capturing all branch, loop, and return paths
+- Exports to DOT format (`output/function_cfg.dot`) for visualization
 
 ### 🏆 Code Quality Analysis
-- **Priority Queue–ranked issue reporting** — issues sorted by severity (1–5)
-- **8 issue categories**: unused variables, deep nesting, large functions, high fanout, too many parameters, high complexity, dead code, and recursive patterns
-- **Per-function scoring** with line-level diagnostics
-- **JSON export** to `output/issues.json` for frontend rendering
+- **8 categories of code smells detected** and ranked by severity:
+
+  | Severity | Label | Issue Type |
+  |:---:|---|---|
+  | 🔴 5 — Critical | `CRITICAL` | Unused Variables (DFA-detected) |
+  | 🟠 4 — High | `HIGH` | Deep Nesting (threshold: 4 levels) |
+  | 🟡 3 — Medium | `MEDIUM` | Large Functions, High Complexity, High Fan-out, Recursive Patterns |
+  | 🔵 2 — Low | `LOW` | Excessive Parameters, Dead Code |
+
+- Issues ranked and drained via a **max-heap priority queue** — highest severity always surfaces first
+- Computes a **weighted Stability Score** (Critical = −10, High = −5, Medium = −2, Low = −1) to give an at-a-glance code health metric
+- Full report exported to `output/issues.json` for frontend consumption
 
 ### 🖥️ Frontend Visualization
-- **Dashboard** — live metrics overview with metric cards, stat summaries, and analysis trigger
-- **AST Viewer** — collapsible, color-coded node tree with depth indicators
-- **Function Graph** — interactive canvas renderer with force-directed node layout
-- **Issues Report** — severity-labeled issue cards with file/function/line context
-- **Symbol Explorer** — paginated symbol table with search and filter
-- **Analyze Page** — upload `.c` files or paste code directly into a syntax-aware editor; triggers backend in headless mode
+- **Dashboard** — metric cards, severity gauge, code churn analytics, and file metadata
+- **AST Viewer** — interactive collapsible tree with node inspector panel, source location mapping, expand/collapse all, and node-type search filtering
+- **Function Graph** — Canvas API-rendered interactive call graph with node highlighting and call-edge tracing
+- **Issues Report** — severity-grouped issue cards with label filtering and Stability Score gauge
+- **Symbol Explorer** — live-search, filterable table of all extracted symbols with category badges
+- Drag-and-drop **glassmorphism file uploader** — triggers backend headless analysis and auto-refreshes all panels via Vite middleware
 
 ---
 
-## 🧱 Tech Stack
+## 🛠️ Tech Stack
 
 ### ⚙️ Backend — Pure C Engine
 
-| Module | File(s) | Data Structure | Complexity |
+| Module | File | Data Structure | Complexity |
 |---|---|---|---|
-| Symbol Table | `hashtable.c / .h` | Hash Table (chaining, size 1031) | O(1) avg lookup / insert |
-| Autocomplete | `trie.c / .h` | Trie (26-child nodes) | O(L) per prefix query |
-| Sorted View | `avltree.c / .h` | AVL Tree (self-balancing BST) | O(log n) insert / search |
-| Lexer | `lexer.c / .h` | Token stream (linear scan) | O(n) per file |
-| Parser | `parser.c / .h` | Recursive descent parser | O(n) per token stream |
-| AST | `ast.c / .h` | N-ary tree (heap-allocated) | O(n) traversal |
-| Function Graph | `graph.c / .h` | Directed graph (adjacency list) | O(V + E) DFS/BFS |
-| CFG | `cfg.c / .h` | Control Flow Graph (DAG) | O(n) from AST |
-| Quality Analyzer | `quality_analyzer.c / .h` | Max-Heap Priority Queue | O(log k) per issue |
-| JSON Exporter | `json_export.c / .h` | Sequential serializer | O(n) per structure |
+| Symbol Table | `hashtable.c / .h` | Hash Table (chaining, prime size 1031) | O(1) avg lookup |
+| Autocomplete | `trie.c / .h` | Prefix Trie | O(L) per prefix |
+| Sorted View | `avltree.c / .h` | AVL Tree (self-balancing BST) | O(log N) insert/search |
+| Tokenizer | `lexer.c / .h` | Linear token stream | O(N) |
+| Parser | `parser.c / .h` | Recursive-descent | O(N) |
+| AST | `ast.c / .h` | N-ary tree with sibling links | O(N) traversal |
+| Call Graph | `graph.c / .h` | Directed adjacency-list graph (200 nodes) | O(V + E) DFS |
+| Control Flow | `cfg.c / .h` | CFG node/edge graph | O(V + E) |
+| Quality Engine | `quality_analyzer.c / .h` | Max-heap priority queue | O(K log K) |
+| JSON Export | `json_export.c / .h` | Structured file I/O | O(N) |
 
-**Compiler:** `gcc` with `-Wall -Wextra`  
-**Build System:** `make` (Makefile with incremental compilation via `obj/`)
+> **Zero external C libraries.** Every data structure — the hash table, trie, AVL tree, call graph, priority queue — is hand-implemented from scratch in standard C99.
 
----
+### 🌐 Frontend — React + Vite
 
-### 🎨 Frontend — React + Vite
-
-| Layer | Technology |
-|---|---|
-| Framework | React 19 + Vite 8 |
-| Routing | React Router DOM v7 |
-| Icons | Lucide React |
-| Graph Rendering | Custom HTML5 Canvas (`GraphCanvas.jsx`) |
-| API Bridge | Vite custom middleware (serves `output/*.json`, handles `/api/analyze`) |
-| Styling | Vanilla CSS with CSS variables, glassmorphism & dark theme |
-| Dev Server | `vite` (HMR enabled, 30s exec timeout on backend subprocess) |
+| Technology | Version | Purpose |
+|---|---|---|
+| **React** | 19 | Component-based UI, hooks, state management |
+| **Vite** | 8 | Lightning-fast dev server, HMR, proxy middleware |
+| **React Router** | v7 | Client-side routing between 5 analysis views |
+| **Lucide React** | latest | Icon system |
+| **Canvas API** | native | Function call graph rendering (`GraphCanvas.jsx`) |
+| **Vanilla CSS** | — | Custom design system — glassmorphism, dark mode, animations |
 
 ---
 
 ## 🏗️ System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                        CodeMaster Engine                         │
-│                                                                  │
-│   .c Source File                                                 │
-│        │                                                         │
-│        ▼                                                         │
-│   ┌──────────┐    Tokens     ┌──────────┐                        │
-│   │  Lexer   │ ────────────► │  Parser  │                        │
-│   └──────────┘               └──────────┘                        │
-│                                    │                             │
-│                    ┌───────────────┼───────────────┐             │
-│                    ▼               ▼               ▼             │
-│              ┌──────────┐  ┌──────────┐  ┌──────────────┐       │
-│              │   AST    │  │Hash Table│  │Function Graph│       │
-│              │ (N-ary   │  │+ Trie    │  │(Adj. List)   │       │
-│              │  tree)   │  │+ AVL Tree│  │              │       │
-│              └──────────┘  └──────────┘  └──────────────┘       │
-│                    │                             │               │
-│                    ▼                             ▼               │
-│              ┌──────────┐               ┌──────────────┐         │
-│              │   CFG    │               │  Recursion / │         │
-│              │ Builder  │               │  Dead Code   │         │
-│              └──────────┘               │  Detection   │         │
-│                    │                    └──────────────┘         │
-│                    └──────────┬──────────────────┘               │
-│                               ▼                                  │
-│                      ┌─────────────────┐                         │
-│                      │ Quality Analyzer│                          │
-│                      │ (Priority Queue)│                          │
-│                      └─────────────────┘                         │
-│                               │                                  │
-│                               ▼                                  │
-│                      ┌─────────────────┐                         │
-│                      │  JSON Exporter  │                          │
-│                      │ symbols.json    │                          │
-│                      │ ast.json        │                          │
-│                      │ graph.json      │                          │
-│                      │ issues.json     │                          │
-│                      └─────────────────┘                         │
-└─────────────────────────────────────────────────────────────────┘
-                               │
-                               ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     React Frontend (Vite)                        │
-│                                                                  │
-│  /api/analyze ──► master_bin --headless ──► output/*.json        │
-│                                                                  │
-│  ┌───────────┐ ┌───────────┐ ┌────────────┐ ┌───────────────┐   │
-│  │Dashboard  │ │AST Viewer │ │Func. Graph │ │Issues Report  │   │
-│  │(metrics)  │ │(tree UI)  │ │(canvas)    │ │(priority list)│   │
-│  └───────────┘ └───────────┘ └────────────┘ └───────────────┘   │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                        CodeMaster Pipeline                          │
+└─────────────────────────────────────────────────────────────────────┘
+
+  ┌──────────────┐
+  │  C Source    │  your_code.c  (drag-and-drop via React frontend)
+  │  File (.c)   │
+  └──────┬───────┘
+         │
+         ▼
+  ┌──────────────┐
+  │   Lexer      │  lexer.c  →  Token stream
+  │              │              (identifiers, keywords, operators, literals)
+  └──────┬───────┘
+         │
+         ▼
+  ┌──────────────┐
+  │   Parser     │  parser.c  →  Recursive-descent parsing
+  │              │               Simultaneously populates:
+  │              │               HashTable · Trie · AVL Tree · FunctionGraph
+  └──────┬───────┘
+         │
+         ├───────────────────────────────────────┐
+         │                                       │
+         ▼                                       ▼
+  ┌──────────────┐                      ┌────────────────┐
+  │  Symbol      │  hashtable.c         │  AST Builder   │
+  │  Table       │  trie.c              │  ast.c         │
+  │  (HT + Trie  │  avltree.c           │  parser.c      │
+  │  + AVL)      │                      └───────┬────────┘
+  └──────┬───────┘                              │
+         │                               ┌──────┴──────────┐
+         │                               ▼                  ▼
+         │                     ┌──────────────┐    ┌─────────────┐
+         │                     │  Function    │    │  CFG        │
+         │                     │  Call Graph  │    │  Builder    │
+         │                     │  graph.c     │    │  cfg.c      │
+         │                     └──────┬───────┘    └──────┬──────┘
+         │                            │                   │
+         │                            ▼                   │
+         │                   ┌──────────────┐             │
+         │                   │  Quality     │             │
+         │                   │  Analyzer    │             │
+         │                   │  Max-Heap PQ │             │
+         │                   └──────┬───────┘             │
+         │                          │                     │
+         └──────────┬───────────────┘                     │
+                    │◄────────────────────────────────────┘
+                    ▼
+          ┌──────────────────┐
+          │   JSON Export    │  json_export.c
+          │                  │
+          │  output/         │
+          │  ├─ symbols.json │  ← all symbols, types, lines
+          │  ├─ graph.json   │  ← 29 functions, 65 edges, cycles
+          │  ├─ ast.json     │  ← full N-ary tree structure
+          │  └─ issues.json  │  ← severity-ranked quality issues
+          └────────┬─────────┘
+                   │  Vite middleware (no separate server needed)
+                   ▼
+          ┌──────────────────────────────────────┐
+          │         React Frontend               │
+          │  localhost:5173                      │
+          │                                      │
+          │  ┌───────────┐  ┌────────────────┐  │
+          │  │ Dashboard │  │  AST Viewer    │  │
+          │  └───────────┘  └────────────────┘  │
+          │  ┌───────────┐  ┌────────────────┐  │
+          │  │ Function  │  │ Issues Report  │  │
+          │  │ Graph     │  └────────────────┘  │
+          │  └───────────┘  ┌────────────────┐  │
+          │                 │ Symbol Explorer│  │
+          │                 └────────────────┘  │
+          └──────────────────────────────────────┘
 ```
 
 ---
 
-## 🔄 System Flowchart
+## 🔄 Full System Flowchart
 
 ```
-  ╔══════════════════╗
-  ║  User Input:     ║
-  ║  Upload .c file  ║
-  ║  or paste code   ║
-  ╚═════════╤════════╝
-            │
-            ▼
-  ╔══════════════════╗
-  ║  Vite Middleware ║  POST /api/analyze
-  ║  writes to       ║──────────────────►  target_input.c
-  ║  target_input.c  ║
-  ╚═════════╤════════╝
-            │
-            ▼
-  ╔══════════════════════════════════════╗
-  ║  master_bin target_input.c           ║
-  ║  --headless                          ║
-  ║                                      ║
-  ║  1. Lexer  → token stream            ║
-  ║  2. Parser → populates:              ║
-  ║       • Hash Table  (symbols)        ║
-  ║       • Trie        (autocomplete)   ║
-  ║       • AVL Tree    (sorted view)    ║
-  ║       • Graph       (call edges)     ║
-  ║  3. parse_file_to_ast() → AST tree   ║
-  ║  4. CFG built from AST               ║
-  ║  5. Quality analysis → PQ ranked     ║
-  ║  6. export_all_json() writes:         ║
-  ║       • output/symbols.json          ║
-  ║       • output/graph.json            ║
-  ║       • output/ast.json              ║
-  ║       • output/issues.json           ║
-  ╚══════════════════╤═══════════════════╝
-                     │  < 30 ms
-                     ▼
-  ╔══════════════════════════════════════╗
-  ║  Vite serves output/*.json           ║
-  ║  React fetches and renders:          ║
-  ║                                      ║
-  ║  • Dashboard   → MetricCards         ║
-  ║  • AST Viewer  → collapsible tree    ║
-  ║  • Graph View  → canvas rendering    ║
-  ║  • Issues Page → severity-ranked     ║
-  ║  • Symbols     → filterable table    ║
-  ╚══════════════════════════════════════╝
+                        ┌──────────────────────┐
+                        │  User drops .c file  │
+                        │  on dashboard        │
+                        └──────────┬───────────┘
+                                   │
+                                   ▼
+                     ┌─────────────────────────┐
+                     │  Vite custom middleware  │
+                     │  writes file to disk    │
+                     │  executes master_bin    │
+                     │  with --headless flag   │
+                     └────────────┬────────────┘
+                                  │
+              ┌───────────────────┼──────────────────┐
+              ▼                   ▼                   ▼
+   ┌─────────────────┐  ┌──────────────┐   ┌─────────────────┐
+   │  LEXER          │  │  PARSER      │   │  AST BUILDER    │
+   │  Tokenize src   │  │  Recursive   │   │  N-ary tree     │
+   │  → token stream │  │  descent     │   │  construction   │
+   └────────┬────────┘  └──────┬───────┘   └────────┬────────┘
+            │                  │                     │
+            │         ┌────────┴──────┐              │
+            │         ▼               ▼              │
+            │   ┌──────────┐  ┌─────────────┐       │
+            │   │HashTable │  │ Trie + AVL  │       │
+            │   │ O(1) sym │  │ O(L) auto-  │       │
+            │   │ lookup   │  │ complete    │       │
+            │   └──────────┘  └─────────────┘       │
+            │                                        │
+            │                          ┌─────────────┘
+            │                          ▼
+            │                 ┌──────────────────┐
+            │                 │  CALL GRAPH      │
+            │                 │  DFS cycle det.  │
+            │                 │  Dead code flag  │
+            │                 │  Coupling check  │
+            │                 │  29 nodes tracked│
+            │                 └────────┬─────────┘
+            │                          │
+            │                 ┌────────┘
+            │                 ▼
+            │        ┌────────────────────┐
+            │        │  QUALITY ANALYZER  │
+            │        │  Max-heap PQ       │
+            │        │  8 issue categories│
+            │        │  Stability Score   │
+            │        └────────┬───────────┘
+            │                 │
+            └─────────┬───────┘
+                      ▼
+             ┌─────────────────────┐
+             │    JSON EXPORT      │
+             │  symbols / graph /  │
+             │  ast / issues .json │
+             └──────────┬──────────┘
+                        │
+                        ▼
+             ┌─────────────────────┐
+             │   REACT DASHBOARD   │
+             │  5 live views       │
+             │  auto-refresh       │
+             │  on analysis done   │
+             └─────────────────────┘
 ```
 
 ---
 
-## 💎 Why CodeMaster is Unique
+## 🌟 Why CodeMaster is Unique
 
-Most static analysis tools are either black boxes or language-specific commercial products. CodeMaster is different:
-
-| Trait | What It Means |
+| Aspect | Detail |
 |---|---|
-| 🔩 **Pure C Engine** | No runtime, no VM, no interpreter overhead. The entire analysis pipeline compiles to a single binary (`master_bin`) under 200 KB |
-| 🌲 **5 Data Structures — by design** | Hash Table, Trie, AVL Tree, Directed Graph, and Max-Heap Priority Queue — each chosen for a specific algorithmic reason, not convenience |
-| 📐 **Hand-Written Parser** | Not a third-party library — a custom recursive-descent parser with its own lexer, giving full control over what gets analyzed |
-| 🖼️ **Full-Stack Visualization** | Analysis results are serialized to structured JSON and rendered live in a React dashboard — not a CLI dump |
-| ⚡ **Sub-30ms Analysis** | On real-world C files (500+ lines, 29 functions, 65 call edges), the entire pipeline completes in under 30ms |
-| 🔄 **Two Modes: Interactive & Headless** | Run interactively via the 18-option CLI menu, or trigger via `--headless` for programmatic frontend integration |
-| 📦 **Self-Contained** | No external C libraries. The backend compiles with `gcc -Wall -Wextra` and zero dependency warnings |
+| 🔬 **C-native engine** | Parser, AST, graph, and quality engine written entirely in C99 — no libclang, no LLVM wrappers, no Python glue |
+| 🧩 **5 data structures** | Hash Table, Trie, AVL Tree, Adjacency-list Graph, Max-heap Priority Queue — all hand-implemented |
+| 🖥️ **Full-stack architecture** | C backend → JSON files → React frontend. Two completely different technology stacks, unified |
+| ⚙️ **Real compiler pipeline** | Lexer → Parser → AST → Graph → Analysis — the same stages as a production compiler front-end |
+| 🚀 **Headless mode** | Backend supports `--headless` flag enabling CI/CD and web server integration without a TTY |
+| 📈 **Interactive visualization** | Canvas-rendered call graph, collapsible AST tree with node inspector, severity-filtered issues panel |
+| 🛡️ **Zero C dependencies** | Pure C99 standard library only. No malloc wrappers, no parsing libraries — fully self-contained |
+| 🏆 **Priority-ranked reporting** | Issues surfaced by severity via a max-heap — not a flat unsorted dump |
+| 🔢 **Real metrics** | 29-function graphs, 65 call edges, 7 recursive patterns — tracked live on actual codebases |
 
 ---
 
-## ⚖️ Comparison with Existing Tools
+## 📊 Comparison with Existing Tools
 
-| Feature | CodeMaster | `cppcheck` | `clang-tidy` | `splint` | Basic Linters |
-|---|:---:|:---:|:---:|:---:|:---:|
-| Custom C Parser (no LLVM/Clang) | ✅ | ❌ | ❌ | ✅ | ❌ |
-| Full AST Construction | ✅ | ⚠️ Partial | ✅ | ⚠️ Partial | ❌ |
-| Function Call Graph | ✅ | ⚠️ Limited | ✅ | ❌ | ❌ |
-| Recursion Detection | ✅ | ❌ | ✅ | ❌ | ❌ |
-| Dead Code Detection | ✅ | ✅ | ✅ | ⚠️ | ❌ |
-| Priority-Ranked Issue Queue | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Control Flow Graph (CFG) | ✅ | ❌ | ✅ | ❌ | ❌ |
-| Prefix Autocomplete (Trie) | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Sorted Symbol View (AVL) | ✅ | ❌ | ❌ | ❌ | ❌ |
-| React Visualization Frontend | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Interactive Canvas Graph | ✅ | ❌ | ❌ | ❌ | ❌ |
-| Web Upload / Paste API | ✅ | ❌ | ❌ | ❌ | ❌ |
-| JSON-structured output | ✅ | ⚠️ XML | ⚠️ YAML | ❌ | ❌ |
-| External dependencies | **Zero** | Medium | Heavy (LLVM) | Low | Low |
-| Stability (no crashes on test files) | ✅ 30s timeout | ✅ | ✅ | ⚠️ | ✅ |
+| Feature | Basic Linters (clang-tidy) | Typical Student Analyzers | **CodeMaster** |
+|---|:---:|:---:|:---:|
+| Custom C engine | ❌ Wraps LLVM | ❌ Python / Java | ✅ Pure C99 |
+| Hand-built data structures | ❌ | ❌ | ✅ HT + Trie + AVL + Graph + PQ |
+| AST construction | ✅ via libclang | ⚠️ Partial | ✅ Custom recursive-descent |
+| Function call graph | ✅ | ❌ | ✅ With cycle & dead-code detection |
+| Control flow graph | ✅ | ❌ | ✅ CFG with DOT export |
+| Data flow analysis | ✅ | ❌ | ✅ Read/write variable tracking |
+| Priority-ranked issues | ⚠️ Flat list | ❌ | ✅ Max-heap severity queue |
+| Stability Score | ❌ | ❌ | ✅ Weighted composite metric |
+| Web visualization | ❌ | ❌ | ✅ React dashboard, 5 views |
+| JSON export for UI | ❌ | ❌ | ✅ symbols / graph / ast / issues |
+| Headless / CI mode | ✅ | ❌ | ✅ `--headless` flag |
+| Trie autocomplete | ❌ | ❌ | ✅ O(L) prefix search |
+| External dependencies | Heavy (LLVM) | Moderate | ✅ **Zero** |
 
 ---
 
 ## 🎯 Use Cases
 
-| Scenario | How CodeMaster Helps |
+| Domain | How CodeMaster Helps |
 |---|---|
-| 🎓 **Learning C Internals** | Visualize how your own C code forms an AST — understand scopes, declarations, and call hierarchies in real time |
-| 🔍 **Debugging Complex Codebases** | The function call graph instantly reveals which functions are tightly coupled or calling each other recursively |
-| 📋 **Code Quality Reviews** | The Priority Queue–ranked issue report surfaces the most severe problems first, not a flat wall of warnings |
-| 🏆 **Hackathon Submissions** | Upload your `.c` file to the web dashboard — get a professional analysis report in under 30ms |
-| 🧪 **CS Education / Viva Demos** | 18 interactive menu options let you demonstrate symbol lookup, trie autocomplete, and graph analysis live |
-| 🛠️ **Refactoring Guidance** | Dead code detection and high-coupling flags highlight where to clean up before submission |
-| 📊 **Codebase Metrics** | Get exact counts: functions, call edges, recursion depth, nesting levels, and more — all in structured JSON |
+| **Code Quality Auditing** | Get a severity-ranked report on nesting depth, function complexity, dead code, and coupling — in seconds |
+| **CS Education** | Watch exactly how a C program transforms: tokens → AST → call graph → quality report. Perfect for compilers or DSA courses |
+| **Debugging & Refactoring** | Identify highly-coupled functions, deep call chains, and unused variables before making structural changes |
+| **Academic Projects** | Demonstrates a complete compiler front-end + data structure portfolio with a polished UI — stands out immediately |
+| **Hackathons** | Complete, running, and visually impressive — two tech stacks in one project |
+| **Portfolio & Recruitment** | Simultaneously demonstrates mastery of C, algorithms, system design, and full-stack development |
 
 ---
 
-## 🚀 Installation & Setup
+## ⚙️ Installation & Setup
 
 ### Prerequisites
 
-- `gcc` (GCC 11+ recommended)
-- `make`
-- `Node.js` (v18+) and `npm`
-
----
-
-### 1️⃣ Clone the Repository
-
-```bash
-git clone https://github.com/nitinrwt22/codemaster.git
-cd CodeMaster
 ```
-
----
-
-### 2️⃣ Build the Backend
-
-```bash
+gcc (GCC 11+ recommended)
 make
+node v18+
+npm v9+
 ```
 
-This compiles all `.c` files in `backend/` into object files under `obj/` and links them into the `master_bin` binary.
+---
 
-**Run in interactive mode (CLI):**
+### 🔧 Step 1 — Clone & Build the C Engine
+
 ```bash
-./master_bin path/to/your_file.c
+# Clone the repository
+git clone https://github.com/nitinrwt22/CodeMaster.git
+cd CodeMaster
+
+# Compile all backend modules (lexer, parser, AST, graph, quality engine, JSON export)
+make
+
+# Verify the binary was created
+ls -lh master_bin
 ```
 
-**Run in headless mode (exports JSON to `output/`):**
+**Interactive CLI mode:**
 ```bash
-./master_bin path/to/your_file.c --headless
+./master_bin path/to/your_code.c
 ```
 
-**Clean build artifacts:**
+**Headless mode (for frontend integration):**
+```bash
+./master_bin path/to/your_code.c --headless
+# Writes: output/symbols.json  output/graph.json  output/ast.json  output/issues.json
+```
+
+**Clean build:**
 ```bash
 make clean
 ```
 
 ---
 
-### 3️⃣ Set Up the Frontend
+### 🌐 Step 2 — Launch the React Dashboard
 
 ```bash
 cd frontend
+
+# Install dependencies
 npm install
+
+# Start the Vite dev server
 npm run dev
 ```
 
-The Vite dev server will start at **`http://localhost:5173`**.
+Open **http://localhost:5173** in your browser.
 
-> **Note:** The Vite server includes a custom middleware that:
-> - Serves `output/*.json` files directly to the React app
-> - Handles `POST /api/analyze` — writes uploaded code to `target_input.c` and executes `./master_bin --headless` with a 30-second timeout
-
----
-
-### 4️⃣ Analyze Your Code
-
-Open `http://localhost:5173` → navigate to **Analyze** → upload a `.c` file or paste code → click **Analyze**.
-
-The backend will run, populate `output/`, and the dashboard will auto-refresh with live results.
+> The Vite dev server includes a **custom middleware plugin** that intercepts `/api/analyze` POST requests — it writes the uploaded source to `target_input.c`, spawns `master_bin --headless`, and serves the resulting JSON files from `/output/` directly to the frontend. No separate Express/Node server needed.
 
 ---
 
@@ -348,150 +391,103 @@ The backend will run, populate `output/`, and the dashboard will auto-refresh wi
 ```
 CodeMaster/
 │
-├── backend/                      # C analysis engine
-│   ├── main.c                    # Entry point: 18-option CLI + headless mode
-│   ├── lexer.c / lexer.h         # Tokenizer — scans raw C source
-│   ├── parser.c / parser.h       # Recursive-descent parser → symbol extraction
-│   ├── ast.c / ast.h             # AST builder, traversal, and analysis
-│   ├── hashtable.c / hashtable.h # Symbol table (open chaining, size 1031)
-│   ├── trie.c / trie.h           # Prefix autocomplete for symbol names
-│   ├── avltree.c / avltree.h     # Self-balancing BST for sorted symbol view
-│   ├── graph.c / graph.h         # Directed function call graph (adjacency list)
-│   ├── cfg.c / cfg.h             # Control Flow Graph from AST
-│   ├── quality_analyzer.c / .h   # Max-heap PQ for ranked issue reporting
-│   ├── json_export.c / .h        # Serializes all analysis to JSON
-│   └── utils.h                   # Shared constants (MAX_NAME, MAX_TYPE, etc.)
+├── backend/                       # C analysis engine (pure C99, zero external deps)
+│   ├── main.c                     # Entry point — interactive CLI + headless mode
+│   ├── lexer.c / lexer.h          # Tokenizer → token stream
+│   ├── parser.c / parser.h        # Recursive-descent parser → populates all structures
+│   ├── ast.c / ast.h              # AST node types, N-ary tree, traversal, analysis
+│   ├── hashtable.c / hashtable.h  # Symbol table — hash table with chaining
+│   ├── trie.c / trie.h            # Autocomplete — prefix trie
+│   ├── avltree.c / avltree.h      # Sorted symbol view — self-balancing AVL tree
+│   ├── graph.c / graph.h          # Function call graph — directed adjacency list
+│   ├── cfg.c / cfg.h              # Control flow graph
+│   ├── quality_analyzer.c / .h    # Issue detection — max-heap priority queue
+│   ├── json_export.c / json_export.h  # Structured JSON writer (manual fprintf)
+│   └── utils.h                    # Shared constants and macros
 │
-├── frontend/                     # React + Vite visualization layer
-│   ├── vite.config.js            # Custom middleware: /output files + /api/analyze
+├── frontend/                      # React + Vite dashboard
 │   ├── src/
-│   │   ├── App.jsx               # Root router — defines all page routes
-│   │   ├── main.jsx              # React DOM entry point
-│   │   ├── index.css             # Global design tokens, dark theme, typography
 │   │   ├── pages/
-│   │   │   ├── Dashboard.jsx/css     # Metrics overview, analysis trigger
-│   │   │   ├── ASTViewer.jsx/css     # Collapsible AST tree renderer
-│   │   │   ├── FunctionGraph.jsx/css # Canvas-based interactive call graph
-│   │   │   ├── IssuesReport.jsx/css  # Priority-ranked issue card list
-│   │   │   ├── Analyze.jsx/css       # Upload + code paste + trigger UI
-│   │   │   └── SymbolExplorer.jsx/css# Searchable, filterable symbol table
-│   │   └── components/
-│   │       ├── layout/           # Shared layout wrappers (sidebar, nav)
-│   │       └── ui/
-│   │           ├── MetricCard.jsx/css  # Stat display cards for dashboard
-│   │           ├── GraphCanvas.jsx     # HTML5 canvas graph renderer
-│   │           ├── ASTNode.jsx         # Recursive AST node component
-│   │           ├── IssueCard.jsx/css   # Individual issue display component
-│   │           ├── FileUpload.jsx/css  # Drag-and-drop file uploader
-│   │           └── Table.jsx/css       # Reusable data table component
+│   │   │   ├── Dashboard.jsx          # Analysis overview — metrics, severity gauge
+│   │   │   ├── ASTViewer.jsx          # Interactive collapsible AST + node inspector
+│   │   │   ├── FunctionGraph.jsx      # Canvas-rendered call graph visualization
+│   │   │   ├── IssuesReport.jsx       # Severity-ranked issue cards + filter
+│   │   │   └── SymbolExplorer.jsx     # Live-search symbol table browser
+│   │   ├── components/
+│   │   │   ├── ui/
+│   │   │   │   ├── FileUpload.jsx     # Drag-and-drop glassmorphism uploader
+│   │   │   │   ├── IssueCard.jsx      # Severity-colored issue card
+│   │   │   │   ├── MetricCard.jsx     # Dashboard stat card
+│   │   │   │   ├── Table.jsx          # Reusable data table
+│   │   │   │   ├── ASTNode.jsx        # Recursive collapsible AST tree node
+│   │   │   │   └── GraphCanvas.jsx    # Canvas API graph renderer
+│   │   │   └── layout/               # Sidebar, navbar, layout wrappers
+│   │   ├── services/
+│   │   │   └── api.js                # Fetch helpers for all JSON endpoints
+│   │   ├── App.jsx                   # React Router setup
+│   │   └── index.css                 # Global design system — tokens, dark mode
+│   ├── vite.config.js                # Vite + custom middleware (file serving + exec)
+│   └── package.json
 │
-├── output/                       # Auto-generated JSON analysis results
-│   ├── symbols.json              # All extracted symbols with type, category, line
-│   ├── ast.json                  # Full AST as nested JSON (~310 KB for real files)
-│   ├── graph.json                # Function graph: 29 nodes, 65 edges, cycle info
-│   └── issues.json               # Ranked quality issues with severity + location
+├── output/                        # Generated JSON (auto-created on analysis)
+│   ├── symbols.json               # All extracted symbols with type, category, line
+│   ├── graph.json                 # Function call graph — nodes, edges, metadata
+│   ├── ast.json                   # Full AST — N-ary tree structure
+│   └── issues.json                # Quality issues — severity-ranked
 │
-├── Makefile                      # Build system (gcc, incremental via obj/)
-├── master_bin                    # Compiled binary (160 KB, zero external deps)
-├── target_input.c                # Temp file written by frontend for analysis
-└── README.md                     # This file
+├── Makefile                       # Build system — gcc, -Wall -Wextra, obj/ staging
+└── README.md
 ```
 
 ---
 
-## 📸 Screenshots
+## 🖼️ Screenshots
 
-> *Replace these placeholders with actual screenshots of your running dashboard.*
+> Upload your own `.c` file to generate live results.
 
-### 🖥️ Dashboard — Metrics Overview
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  📊 CodeMaster Dashboard                                         │
-│                                                                  │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌───────────┐ │
-│  │ 29 Functions│ │  65 Edges   │ │ 7 Recursive │ │ < 30ms    │ │
-│  │  Detected   │ │  in Graph   │ │  Patterns   │ │ Analysis  │ │
-│  └─────────────┘ └─────────────┘ └─────────────┘ └───────────┘ │
-└─────────────────────────────────────────────────────────────────┘
-```
-> 📷 `screenshots/dashboard.png`
-
----
-
-### 🌲 AST Viewer — Tree Structure
-```
-  Program
-  └── FunctionDecl: main (line 640)
-      ├── ParamDecl: argc (int)
-      ├── ParamDecl: argv (char**)
-      └── CompoundStmt
-          ├── CallExpr: init_sample_data
-          ├── CallExpr: authenticate_admin
-          └── IfStmt
-              ├── Condition: ...
-              └── CallExpr: admin_menu
-```
-> 📷 `screenshots/ast_viewer.png`
-
----
-
-### 📈 Function Call Graph — Canvas View
-> Interactive force-directed graph showing all 29 functions and 65 call edges.  
-> Recursive nodes highlighted. Dead code nodes greyed out.
->
-> 📷 `screenshots/function_graph.png`
-
----
-
-### 🏆 Issues Report — Priority Ranked
-| Severity | Issue | Function | Line |
-|:---:|---|---|:---:|
-| 🔴 Critical | High cyclomatic complexity | `admin_menu` | 578 |
-| 🔴 Critical | High fanout (13 callees) | `admin_menu` | 578 |
-| 🟠 High | Deep nesting level | `borrow_book` | 408 |
-| 🟡 Medium | Recursive without base guard | `fibonacci` | 176 |
-| 🔵 Info | Unused function detected | `debug_dump` | 136 |
-
-> 📷 `screenshots/issues_report.png`
-
----
-
-## 🔭 Future Improvements
-
-| Feature | Description |
+| 📊 Dashboard Overview | 🌳 AST Viewer |
 |---|---|
-| 🤖 **AI-Assisted Suggestions** | Integrate a local LLM (e.g. llama.cpp) to generate fix suggestions for each flagged issue |
-| ⚡ **Real-Time Analysis** | File-system watcher triggers re-analysis on save — results update without page reload |
-| 🌐 **Multi-Language Support** | Extend the lexer/parser for C++ and Python subsets |
-| 🔗 **Inline Code Diff** | Show exactly which lines need changing, highlighted in the editor |
-| 📤 **PDF/HTML Report Export** | One-click download of the full analysis as a formatted report |
-| 🧪 **Test Coverage Overlay** | Integrate with `gcov` to overlay test coverage data on the AST viewer |
-| 🐳 **Docker Container** | Containerize backend + frontend for zero-dependency deployment |
-| 🔌 **VS Code Extension** | Surface CodeMaster analysis inline inside the editor as diagnostics |
+| Metric cards, severity gauge, file metadata | Collapsible tree with node inspector & source map |
+
+| 🔗 Function Call Graph | ⚠️ Issues Report |
+|---|---|
+| Canvas-rendered call graph with 29 nodes | Severity-grouped cards with Stability Score |
+
+| 🔍 Symbol Explorer | |
+|---|---|
+| Live-search filterable symbol table | |
 
 ---
 
-## 👨‍💻 Author
+## 🚀 Future Improvements
+
+| Category | Planned Feature |
+|---|---|
+| 🤖 **AI Integration** | LLM-powered fix suggestions for each detected quality issue |
+| ⚡ **Real-time Analysis** | WebSocket-based live analysis as you type in a built-in code editor |
+| 🌍 **Multi-language Support** | Extend the parser to handle C++, Python, and Java source files |
+| 📈 **Historical Tracking** | Persist analysis runs and visualize Stability Score trends over time |
+| 🔌 **VS Code Extension** | Surface CodeMaster results directly in the editor as inline diagnostics |
+| 📦 **Docker Support** | Containerized deployment — single `docker run` to launch the full stack |
+| 🧪 **Test Coverage Analysis** | Map test files against analyzed functions to compute test coverage |
+| 🌐 **Online Playground** | Browser-based C editor with instant analysis — zero install required |
+
+---
+
+## 👤 Author
 
 <div align="center">
 
-**Nitin Rawat**  
-*Computer Science Student · Systems & Full-Stack Developer*
+Made with 🖤 by **Nitin Rawat**
+
+*Designed, architected, and built from scratch — C engine to React dashboard.*
 
 [![GitHub](https://img.shields.io/badge/GitHub-nitinrwt22-181717?style=for-the-badge&logo=github)](https://github.com/nitinrwt22)
 
-> *"Build systems, not just scripts."*
-
-</div>
-
 ---
 
-<div align="center">
+> *Because real engineers understand what happens below the abstraction.*
 
-**⭐ Star this repo if you found it useful!**
-
-*CodeMaster — Parse deeper. Visualize smarter. Code better.*
-
-[![footer](https://capsule-render.vercel.app/api?type=waving&color=0:2c5364,50:203a43,100:0f2027&height=120&section=footer)](https://github.com/nitinrwt22/codemaster)
+**CodeMaster** © 2025 Nitin Rawat — All rights reserved.
 
 </div>
