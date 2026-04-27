@@ -56,7 +56,7 @@ function customMiddlewarePlugin() {
             fs.writeFileSync(targetFilePath, sourceCode);
 
             // Execute the analyzer in headless mode (no interactive menu)
-            exec('./master_bin target_input.c --headless', { cwd: projectRoot }, (error, stdout, stderr) => {
+            exec('./master_bin target_input.c --headless', { cwd: projectRoot, timeout: 30000 }, (error, stdout, stderr) => {
                if (error) {
                  console.error('Execution error:', error);
                  res.statusCode = 500;

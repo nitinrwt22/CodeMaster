@@ -114,8 +114,13 @@ void setParentPointers(ASTNode* root, ASTNode* parent) {
         }
     }
     
-    if (root->next) setParentPointers(root->next, parent);
+    // NOTE: Do NOT follow root->next here.
+    // Sibling (next) pointers create a flat linked list at each depth level.
+    // Following both children[] AND next would revisit the same nodes
+    // exponentially on large files, causing infinite-like recursion.
+    // Parents are already set by addChild() so this is safe to skip.
 }
+
 
 
 void printAST(ASTNode* root, int level) {
